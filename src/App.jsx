@@ -17,8 +17,11 @@ import "@shopify/polaris/build/esm/styles.css";
 import { useState } from "react";
 import { EmptyStatePage } from "./components/EmptyStatePage";
 import { ProductsPage } from "./components/ProductsPage";
+
+
 export default function App() {
   const [selection, setSelection] = useState([]);
+  console.log(selection)
   return (
       <PolarisProvider i18n={translations}>
         <AppBridgeProvider

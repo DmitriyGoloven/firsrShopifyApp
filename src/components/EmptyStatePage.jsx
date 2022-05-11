@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Page, Layout, EmptyState } from "@shopify/polaris";
-import { ResourcePicker, TitleBar } from "@shopify/app-bridge-react";
+import { ResourcePicker, TitleBar} from "@shopify/app-bridge-react";
 
 const img = 'https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg';
 
 export function EmptyStatePage({ setSelection }) {
+    // console.log("selection = 0, start EmptyStatePage")
     const [open, setOpen] = useState(false);
+console.log(open)
     const handleSelection = (resources) => {
         setOpen(false);
         setSelection(resources.selection.map((product) => product.id));
@@ -18,9 +20,11 @@ export function EmptyStatePage({ setSelection }) {
                     onAction: () => setOpen(true),
                 }}
             />
+
+
             <ResourcePicker // Resource picker component
                 resourceType="Product"
-                showVariants={false}
+                showVariants={true}
                 open={open}
                 onSelection={(resources) => handleSelection(resources)}
                 onCancel={() => setOpen(false)}

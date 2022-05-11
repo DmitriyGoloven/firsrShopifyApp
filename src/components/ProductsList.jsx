@@ -1,10 +1,12 @@
 import { ResourceList, TextStyle, Stack, Thumbnail } from "@shopify/polaris";
 
 export function ProductsList({ data }) {
+    // console.log({data})
     return (
         <ResourceList // Defines your resource list component
             showHeader
             resourceName={{ singular: "Product", plural: "Products" }}
+
             items={data.nodes}
             renderItem={(item) => {
                 const media = (
@@ -21,9 +23,9 @@ export function ProductsList({ data }) {
                         id={item.id}
                         media={media}
                         accessibilityLabel={`View details for ${item.title}`}
-                        onClick={() => {
-                            store.set("item", item);
-                        }}
+                        // onClick={() => {
+                        //     store.set("item", item);
+                        // }}
                     >
                         <Stack>
                             <Stack.Item fill>
