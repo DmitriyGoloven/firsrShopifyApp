@@ -1,45 +1,57 @@
-import { ResourceList, TextStyle, Stack, Thumbnail } from "@shopify/polaris";
+import {ResourceList, TextStyle, Stack, Thumbnail, ResourceItem, Card} from "@shopify/polaris";
+import {useState} from "react";
 
-export function ProductsList({ data }) {
-    // console.log({data})
+export function ProductsList({data}) {
+    // console.log(data)
+
     return (
-        <ResourceList // Defines your resource list component
-            showHeader
-            resourceName={{ singular: "Product", plural: "Products" }}
+        <Card>
+            <ResourceList
+                showHeader
+                resourceName={{singular: 'customer', plural: 'customers'}}
+                items={data.products.edges}
+                renderItem={(item) => {
 
-            items={data.nodes}
-            renderItem={(item) => {
-                const media = (
-                    <Thumbnail
-                        source={
-                            item.images.edges[0] ? item.images.edges[0].node.originalSrc : ""
-                        }
-                        alt={item.images.edges[0] ? item.images.edges[0].node.altText : ""}
-                    />
-                );
-                const price = item.variants.edges[0].node.price;
-                return (
-                    <ResourceList.Item
-                        id={item.id}
-                        media={media}
-                        accessibilityLabel={`View details for ${item.title}`}
-                        // onClick={() => {
-                        //     store.set("item", item);
-                        // }}
-                    >
-                        <Stack>
-                            <Stack.Item fill>
-                                <h3>
-                                    <TextStyle variation="strong">{item.title}</TextStyle>
-                                </h3>
-                            </Stack.Item>
-                            <Stack.Item>
-                                <p>${price}</p>
-                            </Stack.Item>
-                        </Stack>
-                    </ResourceList.Item>
-                );
-            }}
-        />
+                    const media = (
+                        <Thumbnail
+                            source={
+                                item.node.images.edges[0] ? item.node.images.edges[0].node.originalSrc : ""
+                            }
+                            alt={item.node.images.edges[0] ? item.node.images.edges[0].node.altText : ""}
+                        />
+                    );
+
+                    const price = item.node.variants.edges[0].node.price
+                    const weight = item.node.variants.edges[0].node.weight
+                    return (
+
+                        <ResourceItem id={item} media={media}>
+                            <h3>
+                                <TextStyle variation="strong">{item.node.title}</TextStyle>
+                            </h3>
+
+                            <Stack distribution="fillEvenly">
+
+                                <Stack.Item fill>
+                                    <h3>
+                                        <TextStyle>{item.node.status}</TextStyle>
+                                    </h3>
+                                </Stack.Item>
+
+                                <Stack.Item>
+                                    <p>weight: {weight}</p>
+                                </Stack.Item>
+
+                                <Stack.Item>
+                                    <p>price: ${price}</p>
+                                </Stack.Item>
+
+                            </Stack>
+                        </ResourceItem>
+                    );
+                }}
+            />
+        </Card>
+
     );
 }

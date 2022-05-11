@@ -1,17 +1,15 @@
 import { gql, useQuery } from "@apollo/client";
-import { Page, Layout, Banner, Card } from "@shopify/polaris";
+import {Page, Layout, Banner, Card} from "@shopify/polaris";
 import { Loading } from "@shopify/app-bridge-react";
 import { ProductsList } from "./ProductsList";
-import { ApplyRandomPrices } from "./ApplyRandomPrices";
 
-// GraphQL query to retrieve products by IDs.
-// The price field belongs to the variants object because
-// product variants can have different prices.
-const GET_PRODUCTS_BY_ID = gql`
-  query getProducts($ids: [ID!]!) {
-    nodes(ids: $ids) {
-      ... on Product {
+const GET_PRODUCTS = gql`
+  query GetProducts($count: Int) {
+  products(first: $count) {
+    edges {
+      node {
         title
+        status
         handle
         descriptionHtml
         id
@@ -27,6 +25,8 @@ const GET_PRODUCTS_BY_ID = gql`
         variants(first: 1) {
           edges {
             node {
+              position
+              weight
               price
               id
             }
@@ -35,12 +35,15 @@ const GET_PRODUCTS_BY_ID = gql`
       }
     }
   }
+}
 `;
 
-export function ProductsPage({ productIds }) {
-    const { loading, error, data, refetch } = useQuery(GET_PRODUCTS_BY_ID, {
-        variables: { ids: productIds },
+export function ProductsPageNew() {
+
+    const { loading, error, data, refetch } = useQuery(GET_PRODUCTS, {
+        variables: { count: 6 },
     });
+
     if (loading) return <Loading />;
 
     if (error) {
@@ -51,13 +54,15 @@ export function ProductsPage({ productIds }) {
     }
 
     return (
+
         <Page>
             <Layout>
                 <Layout.Section>
+
                     <Card>
                         <ProductsList data={data} />
                     </Card>
-                    <ApplyRandomPrices selectedItems={data.nodes} onUpdate={refetch} />
+
                 </Layout.Section>
             </Layout>
         </Page>
