@@ -6,8 +6,8 @@ import {useCallback, useEffect, useMemo} from "react";
 
 
 const GET_PRODUCTS = gql`
-  query GetProducts($count: Int) {
-  products(first: $count) {
+  query GetProducts($count: Int, $countLast: Int, $endCursor: String, $startCursor: String) {
+  products(first: $count, after: $endCursor, last: $countLast, before: $startCursor) {
     edges {
       cursor
       node {
@@ -71,12 +71,14 @@ export function ProductsPagePagination() {
 
 
 
-    console.log(data)
+    // console.log(data)
 
     const nextPage = () => {
+        // console.log(data.products.pageInfo.endCursor)
         getProducts({
             variables: {
-                count: 5
+                endCursor: data.products.pageInfo.endCursor,
+                count: PRODUCTS_COUNT
 
             }
         });
@@ -84,7 +86,10 @@ export function ProductsPagePagination() {
         const previousPage = () => {
             getProducts({
                 variables: {
-                    count: 2
+                    startCursor: data.products.pageInfo.startCursor,
+                    countLast: PRODUCTS_COUNT,
+                    endCursor: null,
+                    count: null
                 }
             });
         }
