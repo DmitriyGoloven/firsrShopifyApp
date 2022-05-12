@@ -52,9 +52,8 @@ export function ProductsPageNew() {
         variables: {count: PRODUCTS_COUNT},
     });
     // const [getProducts, {loading, error, data}] = useLazyQuery(GET_PRODUCTS,)
-    console.log(data)
     if (loading) return <Loading/>;
-
+    console.log(data)
     if (error) {
         console.warn(error);
         return (

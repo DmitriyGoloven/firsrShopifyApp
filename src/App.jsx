@@ -13,7 +13,7 @@ import { Redirect } from "@shopify/app-bridge/actions";
 import { AppProvider as PolarisProvider } from "@shopify/polaris";
 import translations from "@shopify/polaris/locales/en.json";
 import "@shopify/polaris/build/esm/styles.css";
-import {ProductsPagePagination} from "./components/ProductsPagePaginatin";
+import {ProductsPagePagination} from "./components/ProductsPagePagination";
 
 
 export default function App() {

@@ -2,7 +2,8 @@ import {gql, useLazyQuery, useQuery} from "@apollo/client";
 import {Page, Layout, Banner, Card, Pagination} from "@shopify/polaris";
 import {Loading} from "@shopify/app-bridge-react";
 import {ProductsList} from "./ProductsList";
-import {useEffect} from "react";
+import {useCallback, useEffect, useMemo} from "react";
+
 
 const GET_PRODUCTS = gql`
   query GetProducts($count: Int) {
@@ -48,16 +49,15 @@ const GET_PRODUCTS = gql`
 
 export function ProductsPagePagination() {
     const PRODUCTS_COUNT = 3
-    const {loading, error, data} = useQuery(GET_PRODUCTS, {
-        variables: {count: PRODUCTS_COUNT},
-    });
-    //  const [getProducts, {loading, error, data}] = useLazyQuery(GET_PRODUCTS,{
-    //         variables: {count: PRODUCTS_COUNT},
-    //       })
-    // getProducts().then((r) =>{console.log(r)})
+     const [getProducts, {loading, error, data}] = useLazyQuery(GET_PRODUCTS)
 
-    console.log(data)
-    if (loading) return <Loading/>;
+    useEffect(() => {
+        getProducts({
+            variables: {
+                count: PRODUCTS_COUNT,
+            }
+        });
+    }, []);
 
     if (error) {
         console.warn(error);
@@ -66,30 +66,28 @@ export function ProductsPagePagination() {
         );
     }
 
-    // useEffect(() => {
-    //     getProducts({
-    //         variables: {
-    //             count: PRODUCTS_COUNT,
-    //         }
-    //     });
-    // }, []);
 
-    // const nextPage = () => {
-    //
-    //     getProducts({
-    //         variables: {
-    //             count: PRODUCTS_COUNT
-    //
-    //         }
-    //     });
+    if (loading || !data) return <Loading/>;
 
-    //     const previousPage = () => {
-    //         getProducts({
-    //             variables: {
-    //                 count: PRODUCTS_COUNT
-    //             }
-    //         });
-    //     }
+
+
+    console.log(data)
+
+    const nextPage = () => {
+        getProducts({
+            variables: {
+                count: 5
+
+            }
+        });
+    }
+        const previousPage = () => {
+            getProducts({
+                variables: {
+                    count: 2
+                }
+            });
+        }
 
     return (
 
@@ -97,10 +95,10 @@ export function ProductsPagePagination() {
             <Layout>
                 <Layout.Section>
                     <Pagination
-                        // hasPrevious={data.products.pageInfo.hasPreviousPage}
-                        // onPrevious={previousPage}
-                        // hasNext={data.products.pageInfo.hasNextPage}
-                        // onNext={nextPage}
+                        hasPrevious={data.products.pageInfo.hasPreviousPage}
+                        onPrevious={previousPage}
+                        hasNext={data.products.pageInfo.hasNextPage}
+                        onNext={nextPage}
                     />
                     <Card>
                         <ProductsList data={data}/>
