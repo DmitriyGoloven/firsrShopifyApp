@@ -1,40 +1,11 @@
 import {ResourceList, TextStyle, Stack, Thumbnail, ResourceItem, Card} from "@shopify/polaris";
-import {useCallback, useEffect, useMemo, useState} from "react";
 
 
-export function ProductsList({data, getProducts}) {
-
-    const [sortValue, setSortValue] = useState('A-Z')
-
-    useEffect(() => {
-        if (sortValue === 'A-Z') {
-            getProducts({
-                variables: {
-                    revers: false,
-                }
-            })
-        } else {
-            getProducts({
-                variables: {
-                    revers: true,
-                }
-            })
-        }
-
-        console.log(sortValue)
-    }, [sortValue])
-
+export function ProductsList({data}) {
+    console.log(data)
     return (
         <Card>
             <ResourceList
-                sortValue={sortValue}
-                sortOptions={[
-                    {label: 'A-Z', value: 'A-Z'},
-                    {label: 'Z-A', value: 'Z-A'},
-                ]}
-                onSortChange={(selected) => {
-                    setSortValue(selected);
-                }}
                 showHeader
                 resourceName={{singular: 'product', plural: 'products'}}
                 items={data.products.edges}

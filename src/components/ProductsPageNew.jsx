@@ -1,12 +1,13 @@
-import {gql, useLazyQuery, useQuery} from "@apollo/client";
+import {gql, useLazyQuery} from "@apollo/client";
 import {Page, Layout, Banner, Card, Pagination} from "@shopify/polaris";
 import {Loading} from "@shopify/app-bridge-react";
 import {ProductsList} from "./ProductsList";
 import {useEffect} from "react";
 
+
 const GET_PRODUCTS = gql`
-  query GetProducts($count: Int) {
-  products(first: $count) {
+  query GetProducts($count: Int, $countLast: Int, $endCursor: String, $startCursor: String, $revers: Boolean) {
+  products(first: $count, after: $endCursor,sortKey:TITLE, reverse: $revers,last: $countLast, before: $startCursor) {
     edges {
       cursor
       node {
@@ -47,13 +48,17 @@ const GET_PRODUCTS = gql`
 `;
 
 export function ProductsPageNew() {
-    const PRODUCTS_COUNT = 3
-    const {loading, error, data} = useQuery(GET_PRODUCTS, {
-        variables: {count: PRODUCTS_COUNT},
-    });
-    // const [getProducts, {loading, error, data}] = useLazyQuery(GET_PRODUCTS,)
-    if (loading) return <Loading/>;
-    console.log(data)
+    const PRODUCTS_COUNT = 5
+    const [getProducts, {loading, error, data}] = useLazyQuery(GET_PRODUCTS)
+
+    useEffect(() => {
+        getProducts({
+            variables: {
+                count: PRODUCTS_COUNT,
+            }
+        });
+    }, []);
+
     if (error) {
         console.warn(error);
         return (
@@ -61,30 +66,31 @@ export function ProductsPageNew() {
         );
     }
 
-    // useEffect(() => {
-    //     getProducts({
-    //         variables: {
-    //             count: PRODUCTS_COUNT,
-    //         }
-    //     });
-    // }, []);
+    if (loading || !data) return <Loading/>;
 
-    // const nextPage = () => {
-    //
-    //     getProducts({
-    //         variables: {
-    //             count: PRODUCTS_COUNT
-    //
-    //         }
-    //     });
+    const nextPage = () => {
 
-    //     const previousPage = () => {
-    //         getProducts({
-    //             variables: {
-    //                 count: PRODUCTS_COUNT
-    //             }
-    //         });
-    //     }
+        getProducts({
+            variables: {
+                endCursor: data.products.pageInfo.endCursor,
+                count: PRODUCTS_COUNT,
+                startCursor: null,
+                countLast: null
+
+            }
+        });
+    }
+    const previousPage = () => {
+
+        getProducts({
+            variables: {
+                startCursor: data.products.pageInfo.startCursor,
+                countLast: PRODUCTS_COUNT,
+                endCursor: null,
+                count: null
+            }
+        });
+    }
 
     return (
 
@@ -93,12 +99,13 @@ export function ProductsPageNew() {
                 <Layout.Section>
                     <Pagination
                         hasPrevious={data.products.pageInfo.hasPreviousPage}
-                        // onPrevious={previousPage}
+                        onPrevious={previousPage}
                         hasNext={data.products.pageInfo.hasNextPage}
-                        // onNext={nextPage}
+                        onNext={nextPage}
                     />
+
                     <Card>
-                        <ProductsList data={data}/>
+                        <ProductsList getProducts={getProducts} data={data}/>
                     </Card>
 
                 </Layout.Section>
