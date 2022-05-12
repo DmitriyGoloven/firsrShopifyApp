@@ -1,13 +1,16 @@
 import {ResourceList, TextStyle, Stack, Thumbnail, ResourceItem, Card} from "@shopify/polaris";
-import {useState} from "react";
+
 
 export function ProductsList({data}) {
-    // console.log(data)
+    console.log(data)
 
     return (
+
         <Card>
+
             <ResourceList
                 showHeader
+
                 resourceName={{singular: 'customer', plural: 'customers'}}
                 items={data.products.edges}
                 renderItem={(item) => {
@@ -51,6 +54,7 @@ export function ProductsList({data}) {
                     );
                 }}
             />
+
         </Card>
 
     );

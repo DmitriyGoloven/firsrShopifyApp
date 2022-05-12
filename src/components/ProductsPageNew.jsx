@@ -1,12 +1,14 @@
-import { gql, useQuery } from "@apollo/client";
-import {Page, Layout, Banner, Card} from "@shopify/polaris";
-import { Loading } from "@shopify/app-bridge-react";
-import { ProductsList } from "./ProductsList";
+import {gql, useLazyQuery, useQuery} from "@apollo/client";
+import {Page, Layout, Banner, Card, Pagination} from "@shopify/polaris";
+import {Loading} from "@shopify/app-bridge-react";
+import {ProductsList} from "./ProductsList";
+import {useEffect} from "react";
 
 const GET_PRODUCTS = gql`
   query GetProducts($count: Int) {
   products(first: $count) {
     edges {
+      cursor
       node {
         title
         status
@@ -34,17 +36,24 @@ const GET_PRODUCTS = gql`
         }
       }
     }
+    pageInfo {
+      endCursor
+      hasNextPage
+      hasPreviousPage
+      startCursor
+    }
   }
 }
 `;
 
 export function ProductsPageNew() {
-
-    const { loading, error, data, refetch } = useQuery(GET_PRODUCTS, {
-        variables: { count: 6 },
+    const PRODUCTS_COUNT = 3
+    const {loading, error, data} = useQuery(GET_PRODUCTS, {
+        variables: {count: PRODUCTS_COUNT},
     });
-
-    if (loading) return <Loading />;
+    // const [getProducts, {loading, error, data}] = useLazyQuery(GET_PRODUCTS,)
+    console.log(data)
+    if (loading) return <Loading/>;
 
     if (error) {
         console.warn(error);
@@ -53,14 +62,44 @@ export function ProductsPageNew() {
         );
     }
 
+    // useEffect(() => {
+    //     getProducts({
+    //         variables: {
+    //             count: PRODUCTS_COUNT,
+    //         }
+    //     });
+    // }, []);
+
+    // const nextPage = () => {
+    //
+    //     getProducts({
+    //         variables: {
+    //             count: PRODUCTS_COUNT
+    //
+    //         }
+    //     });
+
+    //     const previousPage = () => {
+    //         getProducts({
+    //             variables: {
+    //                 count: PRODUCTS_COUNT
+    //             }
+    //         });
+    //     }
+
     return (
 
         <Page>
             <Layout>
                 <Layout.Section>
-
+                    <Pagination
+                        hasPrevious={data.products.pageInfo.hasPreviousPage}
+                        // onPrevious={previousPage}
+                        hasNext={data.products.pageInfo.hasNextPage}
+                        // onNext={nextPage}
+                    />
                     <Card>
-                        <ProductsList data={data} />
+                        <ProductsList data={data}/>
                     </Card>
 
                 </Layout.Section>
