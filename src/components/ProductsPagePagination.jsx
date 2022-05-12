@@ -1,8 +1,8 @@
-import {gql, useLazyQuery, useQuery} from "@apollo/client";
+import {gql, useLazyQuery} from "@apollo/client";
 import {Page, Layout, Banner, Card, Pagination} from "@shopify/polaris";
 import {Loading} from "@shopify/app-bridge-react";
 import {ProductsList} from "./ProductsList";
-import {useCallback, useEffect, useMemo} from "react";
+import {useEffect} from "react";
 
 
 const GET_PRODUCTS = gql`
@@ -48,8 +48,8 @@ const GET_PRODUCTS = gql`
 `;
 
 export function ProductsPagePagination() {
-    const PRODUCTS_COUNT = 3
-     const [getProducts, {loading, error, data}] = useLazyQuery(GET_PRODUCTS)
+    const PRODUCTS_COUNT = 4
+    const [getProducts, {loading, error, data}] = useLazyQuery(GET_PRODUCTS)
 
     useEffect(() => {
         getProducts({
@@ -66,33 +66,31 @@ export function ProductsPagePagination() {
         );
     }
 
-
     if (loading || !data) return <Loading/>;
 
-
-
-    // console.log(data)
-
     const nextPage = () => {
-        // console.log(data.products.pageInfo.endCursor)
+
         getProducts({
             variables: {
                 endCursor: data.products.pageInfo.endCursor,
-                count: PRODUCTS_COUNT
+                count: PRODUCTS_COUNT,
+                startCursor: null,
+                countLast: null
 
             }
         });
     }
-        const previousPage = () => {
-            getProducts({
-                variables: {
-                    startCursor: data.products.pageInfo.startCursor,
-                    countLast: PRODUCTS_COUNT,
-                    endCursor: null,
-                    count: null
-                }
-            });
-        }
+    const previousPage = () => {
+
+        getProducts({
+            variables: {
+                startCursor: data.products.pageInfo.startCursor,
+                countLast: PRODUCTS_COUNT,
+                endCursor: null,
+                count: null
+            }
+        });
+    }
 
     return (
 
@@ -105,6 +103,7 @@ export function ProductsPagePagination() {
                         hasNext={data.products.pageInfo.hasNextPage}
                         onNext={nextPage}
                     />
+
                     <Card>
                         <ProductsList data={data}/>
                     </Card>

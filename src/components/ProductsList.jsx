@@ -11,7 +11,7 @@ export function ProductsList({data}) {
             <ResourceList
                 showHeader
 
-                resourceName={{singular: 'customer', plural: 'customers'}}
+                resourceName={{singular: 'product', plural: 'products'}}
                 items={data.products.edges}
                 renderItem={(item) => {
 
