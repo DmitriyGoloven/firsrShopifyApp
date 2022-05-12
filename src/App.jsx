@@ -13,7 +13,7 @@ import {Redirect} from "@shopify/app-bridge/actions";
 import {AppProvider as PolarisProvider} from "@shopify/polaris";
 import translations from "@shopify/polaris/locales/en.json";
 import "@shopify/polaris/build/esm/styles.css";
-import {ProductsPageNew} from "./components/ProductsPageNew";
+import {ProductsPage} from "./components/ProductsPage";
 
 
 export default function App() {
@@ -28,7 +28,7 @@ export default function App() {
                 }}
             >
                 <MyProvider>
-                    <ProductsPageNew/>
+                    <ProductsPage/>
                 </MyProvider>
             </AppBridgeProvider>
         </PolarisProvider>
