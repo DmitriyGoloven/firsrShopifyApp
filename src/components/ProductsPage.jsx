@@ -12,7 +12,7 @@ import {
     ResourceList
 } from "@shopify/polaris";
 import {Loading} from "@shopify/app-bridge-react";
-import {useEffect, useState} from "react";
+import {useEffect, useState, useCallback} from "react";
 
 const GET_PRODUCTS = gql`
   query GetProducts($count: Int, $countLast: Int, $endCursor: String, $startCursor: String, $revers: Boolean) {
@@ -56,9 +56,11 @@ const GET_PRODUCTS = gql`
 }
 `;
 
+const PRODUCTS_COUNT = 4
+
 export function ProductsPage() {
-    const PRODUCTS_COUNT = 4
-    const [getProducts, {loading, error, data}] = useLazyQuery(GET_PRODUCTS)
+
+    const [getProducts, {loading, error, data, previousData}] = useLazyQuery(GET_PRODUCTS)
     const [sortValue, setSortValue] = useState('A-Z')
 
     useEffect(() => {
@@ -69,17 +71,7 @@ export function ProductsPage() {
         });
     }, []);
 
-    if (error) {
-        console.warn(error);
-        return (
-            <Banner status="critical">There was an issue loading products.</Banner>
-        );
-    }
-
-    if (loading || !data) return <Loading/>;
-
-    const nextPage = () => {
-
+    const nextPage = useCallback(()=> {
         getProducts({
             variables: {
                 endCursor: data.products.pageInfo.endCursor,
@@ -89,9 +81,9 @@ export function ProductsPage() {
 
             }
         });
-    }
-    const previousPage = () => {
+    },[data]);
 
+    const previousPage = useCallback(() => {
         getProducts({
             variables: {
                 startCursor: data.products.pageInfo.startCursor,
@@ -100,41 +92,36 @@ export function ProductsPage() {
                 count: null
             }
         });
+    }, [data]);
+
+    if (error) {
+        console.warn(error);
+        return (
+            <Banner status="critical">There was an issue loading products.</Banner>
+        );
     }
 
-    const reverse = () => {
+    // console.log(data)
+    // console.log(previousData)
+    // console.log(loading)
+    // if (loading || !data) return <Loading/>;
+    if (!data && !previousData) return <Loading/>
 
-        if (sortValue === 'A-Z') {
-            getProducts({
-                variables: {
-                    revers: true,
-                    count: PRODUCTS_COUNT
-                }
-            })
-
-        } else {
-            getProducts({
-                variables: {
-                    revers: false,
-                    count: PRODUCTS_COUNT
-                }
-            })
-        }
-    }
-
+    const paginationInfo = data ? data.products.pageInfo : previousData.products.pageInfo
     return (
 
         <Page>
             <Layout>
                 <Layout.Section>
                     <Pagination
-                        hasPrevious={data.products.pageInfo.hasPreviousPage}
+                        hasPrevious={paginationInfo.hasPreviousPage}
                         onPrevious={previousPage}
-                        hasNext={data.products.pageInfo.hasNextPage}
+                        hasNext={paginationInfo.hasNextPage}
                         onNext={nextPage}
                     />
                     <Card>
                         <ResourceList
+                            loading={loading}
                             sortValue={sortValue}
                             sortOptions={[
                                 {label: 'A-Z', value: 'A-Z'},
@@ -142,18 +129,26 @@ export function ProductsPage() {
                             ]}
                             onSortChange={(selected) => {
                                 setSortValue(selected)
-                                reverse();
-                            }}
+                                let reversValue = (selected === 'Z-A')
+                                getProducts({
+                                    variables: {
+                                        revers: reversValue,
+                                        count: PRODUCTS_COUNT,
+                                        startCursor: null,
+                                        countLast: null,
+                                        endCursor: null,
+
+                                    }
+                            })}}
                             showHeader
                             resourceName={{singular: 'product', plural: 'products'}}
-                            items={data.products.edges}
+                            items={data ? data.products.edges : previousData.products.edges}
                             renderItem={(item) => {
+                                const imgNode = item.node.images.edges[0]
                                 const media = (
                                     <Thumbnail
-                                        source={
-                                            item.node.images.edges[0] ? item.node.images.edges[0].node.originalSrc : ""
-                                        }
-                                        alt={item.node.images.edges[0] ? item.node.images.edges[0].node.altText : ""}
+                                        source={imgNode ? imgNode.node.originalSrc : ""}
+                                        alt={imgNode ? imgNode.node.altText : ""}
                                     />
                                 );
                                 const price = item.node.variants.edges[0].node.price
