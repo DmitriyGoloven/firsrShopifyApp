@@ -69,7 +69,6 @@ export function ProductsPage() {
     const [getProducts, {loading, error, data, previousData}] = useLazyQuery(GET_PRODUCTS)
     const [sortValue, setSortValue] = useState('A-Z')
 
-
     let timeout;
     useEffect(() => {
         clearTimeout(timeout)
@@ -121,6 +120,20 @@ export function ProductsPage() {
         });
     }, [data]);
 
+    const reverseSearch = useCallback((selected) => {
+
+        getProducts({
+            variables: {
+                revers: selected === 'Z-A',
+                count: PRODUCTS_COUNT,
+                startCursor: null,
+                countLast: null,
+                endCursor: null,
+
+            }
+        })
+    }, [])
+
     if (error) {
         console.warn(error);
         return (
@@ -142,7 +155,7 @@ export function ProductsPage() {
                         hasNext={paginationInfo.hasNextPage}
                         onNext={nextPage}
                     />
-                    <Card>
+                    <Card sectioned>
                         <ResourceList
                             loading={loading}
                             sortValue={sortValue}
@@ -152,17 +165,7 @@ export function ProductsPage() {
                             ]}
                             onSortChange={(selected) => {
                                 setSortValue(selected)
-                                let reversValue = (selected === 'Z-A')
-                                getProducts({
-                                    variables: {
-                                        revers: reversValue,
-                                        count: PRODUCTS_COUNT,
-                                        startCursor: null,
-                                        countLast: null,
-                                        endCursor: null,
-
-                                    }
-                                })
+                                reverseSearch(selected)
                             }}
                             showHeader
                             resourceName={{singular: 'product', plural: 'products'}}

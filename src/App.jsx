@@ -39,6 +39,15 @@ function MyProvider({children}) {
     const app = useAppBridge();
 
     const client = new ApolloClient({
+
+        queryDeduplication: false,
+        defaultOptions: {
+            watchQuery: {
+                fetchPolicy: 'network-only',
+            },
+        },
+
+
         cache: new InMemoryCache(),
         link: new HttpLink({
             credentials: "include",
@@ -70,3 +79,6 @@ export function userLoggedInFetch(app) {
         return response;
     };
 }
+
+
+
