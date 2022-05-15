@@ -9,14 +9,19 @@ import {
     ResourceItem,
     TextStyle,
     Stack,
-    ResourceList
+    ResourceList,
+    Filters,
+    Button,
+    TextField
 } from "@shopify/polaris";
 import {Loading} from "@shopify/app-bridge-react";
 import {useEffect, useState, useCallback} from "react";
 
 const GET_PRODUCTS = gql`
-  query GetProducts($count: Int, $countLast: Int, $endCursor: String, $startCursor: String, $revers: Boolean) {
-  products(first: $count, after: $endCursor,sortKey:TITLE, reverse: $revers,last: $countLast, before: $startCursor) {
+  query GetProducts($count: Int, $countLast: Int, $endCursor: String,
+   $startCursor: String, $revers: Boolean, $search: String) {
+  products(first: $count, after: $endCursor,sortKey:TITLE,
+   reverse: $revers,last: $countLast, before: $startCursor, query: $search) {
     edges {
       cursor
       node {
@@ -60,18 +65,37 @@ const PRODUCTS_COUNT = 4
 
 export function ProductsPage() {
 
+    const [queryValue, setQueryValue] = useState("");
     const [getProducts, {loading, error, data, previousData}] = useLazyQuery(GET_PRODUCTS)
     const [sortValue, setSortValue] = useState('A-Z')
 
-    useEffect(() => {
-        getProducts({
-            variables: {
-                count: PRODUCTS_COUNT,
-            }
-        });
-    }, []);
 
-    const nextPage = useCallback(()=> {
+    let timeout;
+    useEffect(() => {
+        clearTimeout(timeout)
+        timeout = setTimeout(() => {
+            getProducts({
+                variables: {
+                    count: PRODUCTS_COUNT,
+                    search: queryValue
+                }
+            })
+        }, 500);
+    }, [queryValue]);
+
+    const handleQueryValueRemove = useCallback(() => setQueryValue(""), []);
+
+    const filterControl = (
+        <Filters
+            queryValue={queryValue}
+            filters={[]}
+            onQueryChange={setQueryValue}
+            onQueryClear={handleQueryValueRemove}
+        >
+        </Filters>
+    );
+
+    const nextPage = useCallback(() => {
         getProducts({
             variables: {
                 endCursor: data.products.pageInfo.endCursor,
@@ -81,7 +105,7 @@ export function ProductsPage() {
 
             }
         });
-    },[data]);
+    }, [data]);
 
     const previousPage = useCallback(() => {
         getProducts({
@@ -101,10 +125,6 @@ export function ProductsPage() {
         );
     }
 
-    // console.log(data)
-    // console.log(previousData)
-    // console.log(loading)
-    // if (loading || !data) return <Loading/>;
     if (!data && !previousData) return <Loading/>
 
     const paginationInfo = data ? data.products.pageInfo : previousData.products.pageInfo
@@ -139,11 +159,13 @@ export function ProductsPage() {
                                         endCursor: null,
 
                                     }
-                            })}}
+                                })
+                            }}
                             showHeader
                             resourceName={{singular: 'product', plural: 'products'}}
                             items={data ? data.products.edges : previousData.products.edges}
                             renderItem={(item) => {
+                                const {id, url, name, location} = item
                                 const imgNode = item.node.images.edges[0]
                                 const media = (
                                     <Thumbnail
@@ -154,14 +176,17 @@ export function ProductsPage() {
                                 const price = item.node.variants.edges[0].node.price
                                 const weight = item.node.variants.edges[0].node.weight
                                 return (
-                                    <ResourceItem id={item} media={media}>
+                                    <ResourceItem id={id}
+                                                  url={url}
+                                                  media={media}
+                                                  accessibilityLabel={`View details for ${name}`}>
                                         <h3>
                                             <TextStyle variation="strong">{item.node.title}</TextStyle>
                                         </h3>
                                         <Stack distribution="fillEvenly">
                                             <Stack.Item fill>
                                                 <h3>
-                                                    <TextStyle>{item.node.status}</TextStyle>
+                                                    <TextStyle>{item.node.descriptionHtml}</TextStyle>
                                                 </h3>
                                             </Stack.Item>
                                             <Stack.Item>
@@ -171,9 +196,11 @@ export function ProductsPage() {
                                                 <p>price: ${price}</p>
                                             </Stack.Item>
                                         </Stack>
+                                        <div>{location}</div>
                                     </ResourceItem>
                                 );
                             }}
+                            filterControl={filterControl}
                         />
                     </Card>
 
