@@ -61,7 +61,7 @@ const GET_PRODUCTS = gql`
 }
 `;
 
-const PRODUCTS_COUNT = 4
+const PRODUCTS_COUNT = 5
 
 export function ProductsPage() {
 
@@ -77,7 +77,10 @@ export function ProductsPage() {
             getProducts({
                 variables: {
                     count: PRODUCTS_COUNT,
-                    search: queryValue
+                    search: queryValue,
+                    startCursor: null,
+                    countLast: null,
+                    endCursor: null,
                 }
             })
         }, 500);
