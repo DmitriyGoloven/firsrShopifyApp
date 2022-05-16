@@ -10,7 +10,7 @@ export function EmptyStatePage({ setSelection }) {
 
     let location = useLocation();
     useRoutePropagation(location);
-
+    console.log("emptystate")
     // let navigate = useNavigate();
     // useClientRouting({
     //     replace: navigate

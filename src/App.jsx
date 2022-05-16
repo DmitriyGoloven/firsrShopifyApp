@@ -9,7 +9,7 @@ import {
     useAppBridge
 } from "@shopify/app-bridge-react";
 import {authenticatedFetch} from "@shopify/app-bridge-utils";
-import {Redirect} from "@shopify/app-bridge/actions";
+import {AppLink, NavigationMenu, Redirect} from "@shopify/app-bridge/actions";
 import {AppProvider as PolarisProvider, Page} from "@shopify/polaris";
 import translations from "@shopify/polaris/locales/en.json";
 import "@shopify/polaris/build/esm/styles.css";
@@ -17,15 +17,38 @@ import {ProductsPage} from "./components/ProductsPage";
 import {HomePage} from "./components/HomePage";
 import {EmptyStatePage} from "./components/EmptyStatePage";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
-import NavigationBar from "./components/NavigationBar";
+import createApp from "@shopify/app-bridge";
 
 
 
 export default function App() {
 
-    const primaryAction = {content: 'Foo', url: '/EmptyStatePage'};
-    const secondaryActions = [{content: 'Bar', url: '/HomePage'}];
+    const primaryAction = {content: 'Foo', url: '/'};
+    const secondaryActions = [{content: 'Bar', url: '/',loading: true}];
 
+    const app = createApp({
+        apiKey: process.env.SHOPIFY_API_KEY,
+        host: new URL(location).searchParams.get("host"),
+        forceRedirect: true,
+    })
+
+    const itemsLink = AppLink.create(app, {
+        label: 'HomePage',
+        destination: '/HomePage',
+    });
+    const settingsLink = AppLink.create(app, {
+        label: 'ProductsPage',
+        destination: '/ProductsPage',
+
+    });
+    const emptyStateLink = AppLink.create(app, {
+        label: 'EmptyState',
+        destination: '/EmptyStatePage',
+    });
+    const navigationMenu = NavigationMenu.create(app, {
+        items: [itemsLink, settingsLink, emptyStateLink],
+        // active: settingsLink
+    });
 
     return (
 
@@ -43,13 +66,13 @@ export default function App() {
                             title={location.pathname}
                             primaryAction={primaryAction}
                             secondaryActions={secondaryActions}
+                            navigationMenu
                         />
-                        <NavigationBar/>
                         <Routes>
                             <Route exact path="/*" element={<ProductsPage/>}/>
-                            {/*<Route exact path="/ProductsPage" element={<ProductsPage/>}/>*/}
-                            {/*<Route exact path="/EmptyStatePage" element={<EmptyStatePage/>}/>*/}
-                            {/*<Route exact path="/HomePage" element={<HomePage/>}/>*/}
+                            <Route exact path="/ProductsPage" element={<ProductsPage/>}/>
+                            <Route exact path="/EmptyStatePage" element={<EmptyStatePage/>}/>
+                            <Route exact path="/HomePage" element={<HomePage/>}/>
                         </Routes>
                     </BrowserRouter>
                 </MyProvider>
@@ -61,16 +84,11 @@ export default function App() {
 function MyProvider({children}) {
     const app = useAppBridge();
 
-    // let navigate = useNavigate();
-    // useClientRouting({
-    //     replace: navigate
-    // })
-
     const client = new ApolloClient({
         queryDeduplication: false,
         defaultOptions: {
             watchQuery: {
-                fetchPolicy: 'network-only',
+                fetchPolicy: 'no-cache',
             },
         },
         cache: new InMemoryCache(),
@@ -104,6 +122,8 @@ export function userLoggedInFetch(app) {
 
         return response;
     };
+
+
 }
 
 

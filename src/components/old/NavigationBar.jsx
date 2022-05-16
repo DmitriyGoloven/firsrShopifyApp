@@ -4,7 +4,7 @@ import {NavigationMenu, AppLink} from '@shopify/app-bridge/actions';
 import React from 'react';
 
 const NavigationBar = () => {
-
+console.log("nawBar")
     const app = createApp({
         apiKey: process.env.SHOPIFY_API_KEY,
         host: new URL(location).searchParams.get("host"),
@@ -23,7 +23,7 @@ const NavigationBar = () => {
         label: 'EmptyState',
         destination: '/EmptyStatePage',
     });
-    const navigationMenu = NavigationMenu.create(app, {
+  const navigationMenu = NavigationMenu.create(app, {
         items: [itemsLink, settingsLink, emptyStateLink],
         // active: settingsLink
     });
@@ -35,5 +35,7 @@ const NavigationBar = () => {
 
 };
 
-export default NavigationBar;
+export default {NavigationBar};
+
+
 

@@ -67,7 +67,7 @@ export function ProductsPage() {
 
     let location = useLocation();
     useRoutePropagation(location);
-
+    console.log("productPage")
   //   let navigate = useNavigate();
   //
   // useClientRouting({

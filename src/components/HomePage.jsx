@@ -17,7 +17,7 @@ export function HomePage() {
 
     let location = useLocation();
     useRoutePropagation(location);
-
+    console.log("HomePage")
     // let navigate = useNavigate();
     // useClientRouting({
     //     replace: navigate
