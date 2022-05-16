@@ -63,7 +63,7 @@ export default function App() {
                 <MyProvider>
                     <BrowserRouter>
                         <TitleBar
-                            title={location.pathname}
+                            title={location.pathname.replace(location.pathname[0], "", 1)}
                             primaryAction={primaryAction}
                             secondaryActions={secondaryActions}
                             navigationMenu

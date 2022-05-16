@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {useCallback, useState} from "react";
 import { Page, Layout, EmptyState } from "@shopify/polaris";
 import {ResourcePicker, TitleBar, useClientRouting, useNavigate, useRoutePropagation} from "@shopify/app-bridge-react";
 import {useLocation} from "react-router-dom";
@@ -11,10 +11,10 @@ export function EmptyStatePage({ setSelection }) {
     let location = useLocation();
     useRoutePropagation(location);
     console.log("emptystate")
-    // let navigate = useNavigate();
-    // useClientRouting({
-    //     replace: navigate
-    // })
+    let navigate = useNavigate();
+    useCallback(()=>useClientRouting({
+        replace:(path)=>{ navigate(path)}
+    }),[])
 
     const [open, setOpen] = useState(false);
 

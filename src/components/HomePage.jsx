@@ -12,16 +12,17 @@ import {
 import trophyImgUrl from "../assets/home-trophy.png";
 import {NavigationMenu, useClientRouting, useNavigate, useRoutePropagation} from "@shopify/app-bridge-react";
 import {useLocation} from "react-router-dom";
+import {useCallback} from "react";
 
 export function HomePage() {
 
     let location = useLocation();
     useRoutePropagation(location);
     console.log("HomePage")
-    // let navigate = useNavigate();
-    // useClientRouting({
-    //     replace: navigate
-    // })
+    let navigate = useNavigate();
+    useCallback(()=>useClientRouting({
+        replace:(path)=>{ navigate(path)}
+    }),[])
 
     return (
         <Page fullWidth>

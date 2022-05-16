@@ -15,7 +15,7 @@ import {
 import {Loading, useClientRouting, useNavigate, useRoutePropagation} from "@shopify/app-bridge-react";
 import {useEffect, useState, useCallback} from "react";
 import {useLocation} from "react-router-dom";
-
+import {useSearchParams} from "react-router-dom";
 
 const GET_PRODUCTS = gql`
   query GetProducts($count: Int, $countLast: Int, $endCursor: String,
@@ -65,19 +65,30 @@ const PRODUCTS_COUNT = 4
 
 export function ProductsPage() {
 
+
+
     let location = useLocation();
     useRoutePropagation(location);
     console.log("productPage")
-  //   let navigate = useNavigate();
-  //
-  // useClientRouting({
-  //       replace:(path)=>{ navigate(path)}
-  //   })
+    let navigate = useNavigate();
+
+  useCallback(()=>useClientRouting({
+        replace:(path)=>{ navigate(path)}
+    }),[])
 
 
     const [getProducts, {loading, error, data, previousData}] = useLazyQuery(GET_PRODUCTS)
-    const [sortValue, setSortValue] = useState('A-Z')
+    const [sortValue, setSortValue] = useState('A-Z')  //todo del state
     const [queryValue, setQueryValue] = useState("");
+    let [searchParams, setSearchParams] = useSearchParams()
+
+    // const setDefaultSearchParams = useCallback(()=> {setSearchParams({revers: true,
+    //     search:""})},[])
+    const defaultSearchParams = {revers: false, sortValue: 'A-Z'}
+ const changeSearchParams =useCallback((sortValue,revers)=> {setSearchParams({revers: revers, sortValue: sortValue})},[])
+
+    console.log(searchParams.get('revers'))
+
 
 
     let timeout;
@@ -86,6 +97,8 @@ export function ProductsPage() {
         timeout = setTimeout(() => {
             getProducts({
                 variables: {
+                    sortValue: 'A-Z',                          //todo refault or searchparam
+                    revers: searchParams.get('revers') , //todo refault or searchparam
                     count: PRODUCTS_COUNT,
                     search: queryValue,
                     startCursor: null,
@@ -131,9 +144,12 @@ export function ProductsPage() {
     }, [data]);
 
     const reverseSearch = useCallback((selected) => {
+        // changeSearchParams(selected === 'Z-A')
+        // console.log(searchParams.get('revers'))
 
         getProducts({
             variables: {
+                sortValue: 'A-Z',          //todo refault or searchparam
                 revers: selected === 'Z-A',
                 count: PRODUCTS_COUNT,
                 startCursor: null,
@@ -163,7 +179,7 @@ export function ProductsPage() {
                     <Card sectioned>
                         <ResourceList
                             loading={loading}
-                            sortValue={sortValue}
+                            sortValue={sortValue}       //todo get from searchParam
                             sortOptions={[
                                 {label: 'A-Z', value: 'A-Z'},
                                 {label: 'Z-A', value: 'Z-A'},
