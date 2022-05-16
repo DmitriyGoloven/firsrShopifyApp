@@ -10,12 +10,12 @@ import {
     TextStyle,
     Stack,
     ResourceList,
-    Filters,
-    Button,
-    TextField
+    Filters
 } from "@shopify/polaris";
-import {Loading} from "@shopify/app-bridge-react";
+import {Loading, useClientRouting, useNavigate, useRoutePropagation} from "@shopify/app-bridge-react";
 import {useEffect, useState, useCallback} from "react";
+import {useLocation} from "react-router-dom";
+
 
 const GET_PRODUCTS = gql`
   query GetProducts($count: Int, $countLast: Int, $endCursor: String,
@@ -61,13 +61,24 @@ const GET_PRODUCTS = gql`
 }
 `;
 
-const PRODUCTS_COUNT = 5
+const PRODUCTS_COUNT = 4
 
 export function ProductsPage() {
 
-    const [queryValue, setQueryValue] = useState("");
+    let location = useLocation();
+    useRoutePropagation(location);
+
+  //   let navigate = useNavigate();
+  //
+  // useClientRouting({
+  //       replace:(path)=>{ navigate(path)}
+  //   })
+
+
     const [getProducts, {loading, error, data, previousData}] = useLazyQuery(GET_PRODUCTS)
     const [sortValue, setSortValue] = useState('A-Z')
+    const [queryValue, setQueryValue] = useState("");
+
 
     let timeout;
     useEffect(() => {
@@ -104,7 +115,6 @@ export function ProductsPage() {
                 count: PRODUCTS_COUNT,
                 startCursor: null,
                 countLast: null
-
             }
         });
     }, [data]);
@@ -149,12 +159,7 @@ export function ProductsPage() {
         <Page>
             <Layout>
                 <Layout.Section>
-                    <Pagination
-                        hasPrevious={paginationInfo.hasPreviousPage}
-                        onPrevious={previousPage}
-                        hasNext={paginationInfo.hasNextPage}
-                        onNext={nextPage}
-                    />
+
                     <Card sectioned>
                         <ResourceList
                             loading={loading}
@@ -209,7 +214,12 @@ export function ProductsPage() {
                             filterControl={filterControl}
                         />
                     </Card>
-
+                    <Pagination
+                        hasPrevious={paginationInfo.hasPreviousPage}
+                        onPrevious={previousPage}
+                        hasNext={paginationInfo.hasNextPage}
+                        onNext={nextPage}
+                    />
                 </Layout.Section>
             </Layout>
         </Page>
