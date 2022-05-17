@@ -6,13 +6,14 @@ import {
     Image,
     Stack,
     Link,
-    Heading,
+    Heading, DisplayText, TextStyle,
 } from "@shopify/polaris";
 
-import trophyImgUrl from "../assets/home-trophy.png";
-import {NavigationMenu, useClientRouting, useNavigate, useRoutePropagation} from "@shopify/app-bridge-react";
+import {useAppBridge, useClientRouting, useNavigate, useRoutePropagation} from "@shopify/app-bridge-react";
 import {useLocation} from "react-router-dom";
-import {useCallback} from "react";
+import {useCallback, useEffect, useState} from "react";
+
+import {userLoggedInFetch} from "../App";
 
 export function HomePage() {
 
@@ -24,65 +25,57 @@ export function HomePage() {
         replace:(path)=>{ navigate(path)}
     }),[])
 
+    const [productCount, setProductCount] = useState(0);
+
+    const app = useAppBridge();
+    const fetch = userLoggedInFetch(app);
+    async function updateProductCount() {
+        const { count } = await fetch("/products-count").then((res) => res.json());
+        setProductCount(count);
+    }
+
+    useEffect(() => {
+        updateProductCount();
+    }, []);
+
+
     return (
         <Page fullWidth>
             <Layout>
-                <Layout.Section>
-                    <Card sectioned>
-                        <Stack
-                            wrap={false}
-                            spacing="extraTight"
-                            distribution="trailing"
-                            alignment="center"
-                        >
-                            <Stack.Item fill>
-                                <TextContainer spacing="loose">
-                                    <Heading>Nice work on building a Shopify app 🎉</Heading>
-                                    <p>
-                                        Your app is ready to explore! It contains everything you
-                                        need to get started including the{" "}
-                                        <Link url="https://polaris.shopify.com/" external>
-                                            Polaris design system
-                                        </Link>
-                                        ,{" "}
-                                        <Link url="https://shopify.dev/api/admin-graphql" external>
-                                            Shopify Admin API
-                                        </Link>
-                                        , and{" "}
-                                        <Link
-                                            url="https://shopify.dev/apps/tools/app-bridge"
-                                            external
-                                        >
-                                            App Bridge
-                                        </Link>{" "}
-                                        UI library and components.
-                                    </p>
-                                    <p>
-                                        Ready to go? Start populating your app with some sample
-                                        products to view and test in your store.{" "}
-                                    </p>
-                                    <p>
-                                        Learn more about building out your app in{" "}
-                                        <Link
-                                            url="https://shopify.dev/apps/getting-started/add-functionality"
-                                            external
-                                        >
-                                            this Shopify tutorial
-                                        </Link>{" "}
-                                        📚{" "}
-                                    </p>
-                                </TextContainer>
-                            </Stack.Item>
-                            <Stack.Item>
-                                <div style={{padding: "0 20px"}}>
-                                    <Image
-                                        source={trophyImgUrl}
-                                        alt="Nice work on building a Shopify app"
-                                        width={120}
-                                    />
-                                </div>
-                            </Stack.Item>
-                        </Stack>
+                <Layout.Section oneThird>
+                    <Card title="Product Count" sectioned>
+                        <TextContainer spacing="loose">
+                            <Heading element="h4">
+                                TOTAL PRODUCTS
+                                <DisplayText size="medium">
+                                    <TextStyle variation="strong">{productCount}</TextStyle>
+                                </DisplayText>
+                            </Heading>
+                        </TextContainer>
+                    </Card>
+                </Layout.Section>
+                <Layout.Section oneThird>
+                    <Card title="Product Count" sectioned>
+                        <TextContainer spacing="loose">
+                            <Heading element="h4">
+                                TOTAL PRODUCTS
+                                <DisplayText size="medium">
+                                    <TextStyle variation="strong">{productCount}</TextStyle>
+                                </DisplayText>
+                            </Heading>
+                        </TextContainer>
+                    </Card>
+                </Layout.Section>
+                <Layout.Section oneThird>
+                    <Card title="Product Count" sectioned>
+                        <TextContainer spacing="loose">
+                            <Heading element="h4">
+                                TOTAL PRODUCTS
+                                <DisplayText size="medium">
+                                    <TextStyle variation="strong">{productCount}</TextStyle>
+                                </DisplayText>
+                            </Heading>
+                        </TextContainer>
                     </Card>
                 </Layout.Section>
             </Layout>
