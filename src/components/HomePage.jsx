@@ -3,10 +3,7 @@ import {
     Page,
     Layout,
     TextContainer,
-    Image,
-    Stack,
-    Link,
-    Heading, DisplayText, TextStyle,
+    Heading, DisplayText, TextStyle, Button,
 } from "@shopify/polaris";
 
 import {useAppBridge, useClientRouting, useNavigate, useRoutePropagation} from "@shopify/app-bridge-react";
@@ -20,10 +17,14 @@ export function HomePage() {
     let location = useLocation();
     useRoutePropagation(location);
     console.log("HomePage")
+
     let navigate = useNavigate();
+
     useCallback(()=>useClientRouting({
         replace:(path)=>{ navigate(path)}
-    }),[])
+    }),[navigate])
+
+
 
     const [productCount, setProductCount] = useState(0);
 
@@ -38,6 +39,10 @@ export function HomePage() {
         updateProductCount();
     }, []);
 
+    const viewProducts = () => {
+        let path = `/ProductsPage`;
+        navigate(path);
+    }
 
     return (
         <Page fullWidth>
@@ -78,6 +83,12 @@ export function HomePage() {
                         </TextContainer>
                     </Card>
                 </Layout.Section>
+                <Button
+                    primary
+                    onClick={viewProducts}
+                >
+                    View products
+                </Button>
             </Layout>
         </Page>
     );

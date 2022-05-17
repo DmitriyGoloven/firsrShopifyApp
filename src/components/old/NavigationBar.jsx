@@ -1,6 +1,7 @@
 import createApp from '@shopify/app-bridge';
 import {NavigationMenu, AppLink} from '@shopify/app-bridge/actions';
 
+
 import React from 'react';
 
 const NavigationBar = () => {
@@ -21,7 +22,7 @@ console.log("nawBar")
     });
     const emptyStateLink = AppLink.create(app, {
         label: 'EmptyState',
-        destination: '/EmptyStatePage',
+        destination: '/AddProductPage',
     });
   const navigationMenu = NavigationMenu.create(app, {
         items: [itemsLink, settingsLink, emptyStateLink],

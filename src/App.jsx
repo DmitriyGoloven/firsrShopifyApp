@@ -15,43 +15,20 @@ import translations from "@shopify/polaris/locales/en.json";
 import "@shopify/polaris/build/esm/styles.css";
 import {ProductsPage} from "./components/ProductsPage";
 import {HomePage} from "./components/HomePage";
-import {EmptyStatePage} from "./components/EmptyStatePage";
+import {AddProductPage} from "./components/AddProductPage";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
-import createApp from "@shopify/app-bridge";
+
 
 
 
 export default function App() {
 
-    const primaryAction = {content: 'Foo', url: '/'};
-    const secondaryActions = [{content: 'Bar', url: '/',loading: true}];
+    const primaryAction = {content: 'Products', url: '/ProductsPage'};
+    const secondaryActions = [{content: 'Add product', url: '/AddProductPage'}];
 
-    const app = createApp({
-        apiKey: process.env.SHOPIFY_API_KEY,
-        host: new URL(location).searchParams.get("host"),
-        forceRedirect: true,
-    })
-
-    const itemsLink = AppLink.create(app, {
-        label: 'HomePage',
-        destination: '/HomePage',
-    });
-    const settingsLink = AppLink.create(app, {
-        label: 'ProductsPage',
-        destination: '/ProductsPage',
-
-    });
-    const emptyStateLink = AppLink.create(app, {
-        label: 'EmptyState',
-        destination: '/EmptyStatePage',
-    });
-    const navigationMenu = NavigationMenu.create(app, {
-        items: [itemsLink, settingsLink, emptyStateLink],
-        // active: settingsLink
-    });
 
     return (
-
+        <BrowserRouter>
         <PolarisProvider i18n={translations}>
             <AppBridgeProvider
                 config={{
@@ -61,28 +38,28 @@ export default function App() {
                 }}>
 
                 <MyProvider>
-                    <BrowserRouter>
+
                         <TitleBar
                             title={location.pathname.replace(location.pathname[0], "", 1)}
                             primaryAction={primaryAction}
                             secondaryActions={secondaryActions}
-                            navigationMenu
                         />
                         <Routes>
-                            <Route exact path="/*" element={<ProductsPage/>}/>
+                            <Route exact path="/*" element={<HomePage/>}/>
                             <Route exact path="/ProductsPage" element={<ProductsPage/>}/>
-                            <Route exact path="/EmptyStatePage" element={<EmptyStatePage/>}/>
+                            <Route exact path="/AddProductPage" element={<AddProductPage/>}/>
                             <Route exact path="/HomePage" element={<HomePage/>}/>
                         </Routes>
-                    </BrowserRouter>
+
                 </MyProvider>
             </AppBridgeProvider>
         </PolarisProvider>
+        </BrowserRouter>
     );
 }
 
 function MyProvider({children}) {
-    const app = useAppBridge();
+   const app = useAppBridge();
 
     const client = new ApolloClient({
         queryDeduplication: false,
@@ -97,6 +74,26 @@ function MyProvider({children}) {
             fetch: userLoggedInFetch(app),
         }),
     });
+
+
+    const itemsLink = AppLink.create(app, {
+        label: 'Home page',
+        destination: '/HomePage',
+    });
+    const settingsLink = AppLink.create(app, {
+        label: 'Products page',
+        destination: '/ProductsPage',
+
+    });
+    const emptyStateLink = AppLink.create(app, {
+        label: 'Add product',
+        destination: '/AddProductPage',
+    });
+    const navigationMenu = NavigationMenu.create(app, {
+        items: [itemsLink, settingsLink, emptyStateLink],
+        // active: settingsLink
+    });
+
 
 
     return <ApolloProvider client={client}>{children}</ApolloProvider>;

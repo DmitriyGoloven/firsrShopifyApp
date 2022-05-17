@@ -10,7 +10,8 @@ import {
     TextStyle,
     Stack,
     ResourceList,
-    Filters
+    Filters,
+    Button
 } from "@shopify/polaris";
 import {Loading, useClientRouting, useNavigate, useRoutePropagation} from "@shopify/app-bridge-react";
 import {useEffect, useState, useCallback, useMemo} from "react";
@@ -73,7 +74,7 @@ export function ProductsPage() {
         replace: (path) => {
             navigate(path)
         }
-    }), [])
+    }), [navigate])
 
 
     const [getProducts, {loading, error, data, previousData}] = useLazyQuery(GET_PRODUCTS)
@@ -161,8 +162,12 @@ export function ProductsPage() {
             <Banner status="critical">There was an issue loading products.</Banner>
         );
     }
-
     if (!data && !previousData) return <Loading/>
+
+    const addProduct = () => {
+        let path = `/AddProductPage`;
+        navigate(path);
+    }
 
     const paginationInfo = data ? data.products.pageInfo : previousData.products.pageInfo
     return (
@@ -170,7 +175,6 @@ export function ProductsPage() {
         <Page>
             <Layout>
                 <Layout.Section>
-
                     <Card sectioned>
                         <ResourceList
                             loading={loading}
@@ -226,7 +230,16 @@ export function ProductsPage() {
                             }}
 
                         />
+                        <Button
+                            primary
+                            loading={loading}
+                            fullWidth={true}
+                            onClick={addProduct}
+                        >
+                            Add new product
+                        </Button>
                     </Card>
+
                     <Pagination
                         hasPrevious={paginationInfo.hasPreviousPage}
                         onPrevious={previousPage}
