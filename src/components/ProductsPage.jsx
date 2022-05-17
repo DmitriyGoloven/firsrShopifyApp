@@ -93,7 +93,6 @@ export function ProductsPage() {
         {sortValue: searchParams.get("sortValue"), queryValue: ""}), [searchParams]);
 
 
-
     let timeout;
     useEffect(() => {
         clearTimeout(timeout)
@@ -164,7 +163,7 @@ export function ProductsPage() {
     }
     if (!data && !previousData) return <Loading/>
 
-    const addProduct = () => {
+    const routeAddProduct = () => {
         let path = `/AddProductPage`;
         navigate(path);
     }
@@ -234,7 +233,7 @@ export function ProductsPage() {
                             primary
                             loading={loading}
                             fullWidth={true}
-                            onClick={addProduct}
+                            onClick={routeAddProduct}
                         >
                             Add new product
                         </Button>

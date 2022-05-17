@@ -20,18 +20,20 @@ export function HomePage() {
 
     let navigate = useNavigate();
 
-    useCallback(()=>useClientRouting({
-        replace:(path)=>{ navigate(path)}
-    }),[navigate])
-
+    useCallback(() => useClientRouting({
+        replace: (path) => {
+            navigate(path)
+        }
+    }), [navigate])
 
 
     const [productCount, setProductCount] = useState(0);
 
     const app = useAppBridge();
     const fetch = userLoggedInFetch(app);
+
     async function updateProductCount() {
-        const { count } = await fetch("/products-count").then((res) => res.json());
+        const {count} = await fetch("/products-count").then((res) => res.json());
         setProductCount(count);
     }
 
@@ -39,7 +41,7 @@ export function HomePage() {
         updateProductCount();
     }, []);
 
-    const viewProducts = () => {
+    const routeProducts = () => {
         let path = `/ProductsPage`;
         navigate(path);
     }
@@ -85,7 +87,7 @@ export function HomePage() {
                 </Layout.Section>
                 <Button
                     primary
-                    onClick={viewProducts}
+                    onClick={routeProducts}
                 >
                     View products
                 </Button>

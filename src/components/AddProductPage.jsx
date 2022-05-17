@@ -1,19 +1,22 @@
-import {useCallback, useState} from "react";
-import {Form, TextField, Button, FormLayout, Checkbox, Page} from "@shopify/polaris";
-import {useClientRouting, useNavigate, useRoutePropagation} from "@shopify/app-bridge-react";
+import {useCallback, useEffect, useState} from "react";
+import {Form, TextField, Button, FormLayout, Page, Banner} from "@shopify/polaris";
+import {Loading, Toast, useClientRouting, useNavigate, useRoutePropagation} from "@shopify/app-bridge-react";
 import {useLocation} from "react-router-dom";
 import {ButtonGroup, DisplayText} from "@shopify/polaris";
-import {gql, useQuery} from "@apollo/client";
+import {gql, useMutation, useQuery} from "@apollo/client";
 
-// const ADD_PRODUCT = gql`
-  // mutation populateProduct($input: ProductInput!) {
-  //   productCreate(input: $input) {
-  //     product {
-  //       title
-  //     }
-  //   }
-  // }
-// `;
+const ADD_PRODUCT = gql`
+  mutation populateProduct($input: ProductInput!) {
+    productCreate(input: $input) {
+      product {
+        title
+        descriptionHtml
+        id
+      
+      }
+    }
+  }
+`;
 
 
 export function AddProductPage() {
@@ -28,29 +31,53 @@ export function AddProductPage() {
         }
     }), [])
 
-    // const [addProducts, {loading, error, data}] = useQuery(ADD_PRODUCT)
+    const [addProduct, {loading, error, data}] = useMutation(ADD_PRODUCT)
 
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
+    const handleSubmit = useCallback(() => {
 
-    const handleSubmit = useCallback((_event) => {
-        console.log(_event);
-    }, []);
+        addProduct(({
+            variables: {
+                input: {
+                    title: title,
+                    descriptionHtml: description
+                },
+            },
+        }))
+    }, [title, description]);
 
+    useEffect(() => {
+        console.log(data)
+    }, [data])
 
-    const handleTitleChange = useCallback((value) => setTitle(value), []);
-    const handleDescriptionChange = useCallback((value) => setDescription(value), [],);
+    const handleTitleChange = useCallback((value) => setTitle(value), [title]);
+    const handleDescriptionChange = useCallback((value) => setDescription(value), [description],);
 
-    const viewProducts = () => {
+    const routeProducts = () => {
         let path = `/ProductsPage`;
         navigate(path);
     }
+    if (error) {
+        console.warn(error);
+        return (
+            <Banner status="critical">There was an issue loading products.</Banner>
+        );
+    }
+    if (loading) return <Loading/>
+    if (data) return <Toast
+        content="Product created!"
+        onDismiss={routeProducts}
+    />
+
 
     return (
+
         <Page>
-            <DisplayText size="medium">
-            Creation of a new product:
-                </DisplayText>
+            <DisplayText size="large">
+                Creation of a new product:
+            </DisplayText>
+
             <Form onSubmit={handleSubmit}>
                 <FormLayout>
 
@@ -77,18 +104,17 @@ export function AddProductPage() {
                         }
                     />
                     <ButtonGroup spacing="loose">
-                        <Button onClick={viewProducts}>View products</Button>
-                        <Button submit primary>Save product</Button>
-                        </ButtonGroup>
+                        <Button onClick={routeProducts}>Back</Button>
+                        <Button submit
+                                primary>Save product</Button>
+                    </ButtonGroup>
 
-
-                        {/*<Button submit>Save product</Button>*/}
                 </FormLayout>
             </Form>
 
         </Page>
 
-);
+    );
 }
 
 
