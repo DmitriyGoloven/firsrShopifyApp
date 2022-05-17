@@ -13,7 +13,7 @@ import {
     Filters
 } from "@shopify/polaris";
 import {Loading, useClientRouting, useNavigate, useRoutePropagation} from "@shopify/app-bridge-react";
-import {useEffect, useState, useCallback} from "react";
+import {useEffect, useState, useCallback, useMemo} from "react";
 import {useLocation} from "react-router-dom";
 import {useSearchParams} from "react-router-dom";
 
@@ -65,26 +65,31 @@ const PRODUCTS_COUNT = 4
 
 export function ProductsPage() {
 
-
-
-    let location = useLocation();
+    const location = useLocation();
     useRoutePropagation(location);
 
-    let navigate = useNavigate();
-
-  useCallback(()=>useClientRouting({
-        replace:(path)=>{ navigate(path)}
-    }),[])
+    const navigate = useNavigate();
+    useCallback(() => useClientRouting({
+        replace: (path) => {
+            navigate(path)
+        }
+    }), [])
 
 
     const [getProducts, {loading, error, data, previousData}] = useLazyQuery(GET_PRODUCTS)
-    const [queryValue, setQueryValue] = useState("");
-    let [searchParams, setSearchParams] = useSearchParams({revers: false, sortValue: "A-Z"})
+    const [searchParams, setSearchParams] = useSearchParams({revers: false, sortValue: "A-Z", queryValue: ""})
 
 
- const changeSearchParams =useCallback((sortValue)=>
- {setSearchParams({ sortValue: sortValue})},[])
+    const changeSortValue = useCallback((sortValue) => {
+        setSearchParams({queryValue: searchParams.get("queryValue"), sortValue: sortValue})
+    }, [searchParams])
 
+    const changeSearch = useCallback((queryValue) => {
+        setSearchParams({sortValue: searchParams.get("sortValue"), queryValue: queryValue})
+    }, [searchParams])
+
+    const handleQueryValueRemove = useCallback(() => setSearchParams(
+        {sortValue: searchParams.get("sortValue"), queryValue: ""}), [searchParams]);
 
 
 
@@ -96,22 +101,20 @@ export function ProductsPage() {
                 variables: {
                     revers: searchParams.get("sortValue") === "Z-A",
                     count: PRODUCTS_COUNT,
-                    search: queryValue,
+                    search: searchParams.get("queryValue"),
                     startCursor: null,
                     countLast: null,
                     endCursor: null,
                 }
             })
         }, 500);
-    }, [queryValue]);
-
-    const handleQueryValueRemove = useCallback(() => setQueryValue(""), []);
+    }, [searchParams]);
 
     const filterControl = (
         <Filters
-            queryValue={queryValue}
+            queryValue={searchParams.get("queryValue")}
             filters={[]}
-            onQueryChange={setQueryValue}
+            onQueryChange={changeSearch}
             onQueryClear={handleQueryValueRemove}
         >
         </Filters>
@@ -140,7 +143,6 @@ export function ProductsPage() {
     }, [data]);
 
     const reverseSearch = useCallback((selected) => {
-
         getProducts({
             variables: {
                 revers: selected,
@@ -178,10 +180,11 @@ export function ProductsPage() {
                                 {label: 'Z-A', value: 'Z-A'},
                             ]}
                             onSortChange={(selected) => {
-                                changeSearchParams(selected)
+                                changeSortValue(selected)
                                 reverseSearch(selected === 'Z-A')
 
                             }}
+                            filterControl={filterControl}
                             showHeader
                             resourceName={{singular: 'product', plural: 'products'}}
                             items={data ? data.products.edges : previousData.products.edges}
@@ -221,7 +224,7 @@ export function ProductsPage() {
                                     </ResourceItem>
                                 );
                             }}
-                            filterControl={filterControl}
+
                         />
                     </Card>
                     <Pagination
