@@ -69,7 +69,7 @@ export function ProductsPage() {
 
     let location = useLocation();
     useRoutePropagation(location);
-    console.log("productPage")
+
     let navigate = useNavigate();
 
   useCallback(()=>useClientRouting({
@@ -78,16 +78,13 @@ export function ProductsPage() {
 
 
     const [getProducts, {loading, error, data, previousData}] = useLazyQuery(GET_PRODUCTS)
-    const [sortValue, setSortValue] = useState('A-Z')  //todo del state
     const [queryValue, setQueryValue] = useState("");
-    let [searchParams, setSearchParams] = useSearchParams()
+    let [searchParams, setSearchParams] = useSearchParams({revers: false, sortValue: "A-Z"})
 
-    // const setDefaultSearchParams = useCallback(()=> {setSearchParams({revers: true,
-    //     search:""})},[])
-    const defaultSearchParams = {revers: false, sortValue: 'A-Z'}
- const changeSearchParams =useCallback((sortValue,revers)=> {setSearchParams({revers: revers, sortValue: sortValue})},[])
 
-    console.log(searchParams.get('revers'))
+ const changeSearchParams =useCallback((sortValue)=>
+ {setSearchParams({ sortValue: sortValue})},[])
+
 
 
 
@@ -97,8 +94,7 @@ export function ProductsPage() {
         timeout = setTimeout(() => {
             getProducts({
                 variables: {
-                    sortValue: 'A-Z',                          //todo refault or searchparam
-                    revers: searchParams.get('revers') , //todo refault or searchparam
+                    revers: searchParams.get("sortValue") === "Z-A",
                     count: PRODUCTS_COUNT,
                     search: queryValue,
                     startCursor: null,
@@ -144,13 +140,10 @@ export function ProductsPage() {
     }, [data]);
 
     const reverseSearch = useCallback((selected) => {
-        // changeSearchParams(selected === 'Z-A')
-        // console.log(searchParams.get('revers'))
 
         getProducts({
             variables: {
-                sortValue: 'A-Z',          //todo refault or searchparam
-                revers: selected === 'Z-A',
+                revers: selected,
                 count: PRODUCTS_COUNT,
                 startCursor: null,
                 countLast: null,
@@ -179,14 +172,15 @@ export function ProductsPage() {
                     <Card sectioned>
                         <ResourceList
                             loading={loading}
-                            sortValue={sortValue}       //todo get from searchParam
+                            sortValue={searchParams.get('sortValue')}
                             sortOptions={[
                                 {label: 'A-Z', value: 'A-Z'},
                                 {label: 'Z-A', value: 'Z-A'},
                             ]}
                             onSortChange={(selected) => {
-                                setSortValue(selected)
-                                reverseSearch(selected)
+                                changeSearchParams(selected)
+                                reverseSearch(selected === 'Z-A')
+
                             }}
                             showHeader
                             resourceName={{singular: 'product', plural: 'products'}}
