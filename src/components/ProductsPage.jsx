@@ -76,10 +76,16 @@ export function ProductsPage() {
         }
     }), [navigate])
 
+    // let navigate = useNavigate();
+    // let location = useLocation()
+    // useRoutePropagation(location)
+    // useClientRouting({replace:(path) => {
+    //         navigate(path)
+    //     }})
+
 
     const [getProducts, {loading, error, data, previousData}] = useLazyQuery(GET_PRODUCTS)
     const [searchParams, setSearchParams] = useSearchParams({revers: false, sortValue: "A-Z", queryValue: ""})
-
 
     const changeSortValue = useCallback((sortValue) => {
         setSearchParams({queryValue: searchParams.get("queryValue"), sortValue: sortValue})
@@ -91,7 +97,6 @@ export function ProductsPage() {
 
     const handleQueryValueRemove = useCallback(() => setSearchParams(
         {sortValue: searchParams.get("sortValue"), queryValue: ""}), [searchParams]);
-
 
     let timeout;
     useEffect(() => {
@@ -168,10 +173,11 @@ export function ProductsPage() {
         navigate(path);
     }
 
+
     const paginationInfo = data ? data.products.pageInfo : previousData.products.pageInfo
     return (
 
-        <Page>
+        <Page title={"Products"}>
             <Layout>
                 <Layout.Section>
                     <Card sectioned>
@@ -192,8 +198,10 @@ export function ProductsPage() {
                             resourceName={{singular: 'product', plural: 'products'}}
                             items={data ? data.products.edges : previousData.products.edges}
                             renderItem={(item) => {
-                                const {id, url, name, location} = item
+                                const {url} = item
                                 const imgNode = item.node.images.edges[0]
+                                const id = item.node.id
+                                const name = item.node.title
                                 const media = (
                                     <Thumbnail
                                         source={imgNode ? imgNode.node.originalSrc : ""}
@@ -202,11 +210,19 @@ export function ProductsPage() {
                                 );
                                 const price = item.node.variants.edges[0].node.price
                                 const weight = item.node.variants.edges[0].node.weight
+                                const idProd = id.substr(22, id.length)
+
                                 return (
                                     <ResourceItem id={id}
-                                                  url={url}
                                                   media={media}
-                                                  accessibilityLabel={`View details for ${name}`}>
+                                                  accessibilityLabel={`View details for ${name}`}
+                                                  name={name}
+                                                  onClick={() => {
+
+                                                      let path = `/EditProductPage/${idProd}`;
+                                                      navigate(path);
+                                                  }}
+                                    >
                                         <h3>
                                             <TextStyle variation="strong">{item.node.title}</TextStyle>
                                         </h3>
@@ -223,7 +239,7 @@ export function ProductsPage() {
                                                 <p>price: ${price}</p>
                                             </Stack.Item>
                                         </Stack>
-                                        <div>{location}</div>
+                                        <div>{id}</div>
                                     </ResourceItem>
                                 );
                             }}

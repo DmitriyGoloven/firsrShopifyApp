@@ -16,16 +16,19 @@ export function HomePage() {
 
     let location = useLocation();
     useRoutePropagation(location);
-    console.log("HomePage")
 
     let navigate = useNavigate();
-
     useCallback(() => useClientRouting({
         replace: (path) => {
-            navigate(path)
-        }
+            navigate(path)}
     }), [navigate])
 
+    // let navigate = useNavigate();
+    // let location = useLocation()
+    // useRoutePropagation(location)
+    // useClientRouting({replace:(path) => {
+    //         navigate(path)
+    //     }})
 
     const [productCount, setProductCount] = useState(0);
 
@@ -33,7 +36,7 @@ export function HomePage() {
     const fetch = userLoggedInFetch(app);
 
     async function updateProductCount() {
-        const {count} = await fetch("/products-count").then((res) => res.json());
+        const {count} = await fetch("/products/count").then((res) => res.json());
         setProductCount(count);
     }
 
@@ -47,7 +50,7 @@ export function HomePage() {
     }
 
     return (
-        <Page fullWidth>
+        <Page fullWidth title={"Home page"}>
             <Layout>
                 <Layout.Section oneThird>
                     <Card title="Product Count" sectioned>
@@ -85,12 +88,14 @@ export function HomePage() {
                         </TextContainer>
                     </Card>
                 </Layout.Section>
+                <Layout.Section>
                 <Button
                     primary
                     onClick={routeProducts}
                 >
                     View products
                 </Button>
+                </Layout.Section>
             </Layout>
         </Page>
     );

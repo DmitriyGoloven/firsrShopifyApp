@@ -16,50 +16,48 @@ import "@shopify/polaris/build/esm/styles.css";
 import {ProductsPage} from "./components/ProductsPage";
 import {HomePage} from "./components/HomePage";
 import {AddProductPage} from "./components/AddProductPage";
-import {BrowserRouter, Route, Routes} from "react-router-dom";
-
-
+import {BrowserRouter, Route, Routes, useParams} from "react-router-dom";
+import EditProductPage from "./components/EditProductPage";
 
 
 export default function App() {
 
-    const primaryAction = {content: 'Products', url: '/ProductsPage'};
     const secondaryActions = [{content: 'Add product', url: '/AddProductPage'}];
-
 
     return (
         <BrowserRouter>
-        <PolarisProvider i18n={translations}>
-            <AppBridgeProvider
-                config={{
-                    apiKey: process.env.SHOPIFY_API_KEY,
-                    host: new URL(location).searchParams.get("host"),
-                    forceRedirect: true,
-                }}>
+            <PolarisProvider i18n={translations}>
+                <AppBridgeProvider
+                    config={{
+                        apiKey: process.env.SHOPIFY_API_KEY,
+                        host: new URL(location).searchParams.get("host"),
+                        forceRedirect: true,
+                    }}>
 
-                <MyProvider>
+                    <MyProvider>
 
                         <TitleBar
                             title={location.pathname.replace(location.pathname[0], "", 1)}
-                            primaryAction={primaryAction}
                             secondaryActions={secondaryActions}
                         />
+
                         <Routes>
-                            <Route exact path="/*" element={<HomePage/>}/>
-                            <Route exact path="/ProductsPage" element={<ProductsPage/>}/>
-                            <Route exact path="/AddProductPage" element={<AddProductPage/>}/>
-                            <Route exact path="/HomePage" element={<HomePage/>}/>
+                            <Route path="/EditProductPage/:id" element={<EditProductPage/>}/>
+                            <Route path="/HomePage" element={<HomePage/>}/>
+                            <Route path="/ProductsPage" element={<ProductsPage/>}/>
+                            <Route path="/AddProductPage" element={<AddProductPage/>}/>
+                            <Route path='/*' element={<HomePage/>}/>
                         </Routes>
 
-                </MyProvider>
-            </AppBridgeProvider>
-        </PolarisProvider>
+                    </MyProvider>
+                </AppBridgeProvider>
+            </PolarisProvider>
         </BrowserRouter>
     );
 }
 
 function MyProvider({children}) {
-   const app = useAppBridge();
+    const app = useAppBridge();
 
     const client = new ApolloClient({
         queryDeduplication: false,
@@ -76,24 +74,22 @@ function MyProvider({children}) {
     });
 
 
-    const itemsLink = AppLink.create(app, {
+    const HomePageLink = AppLink.create(app, {
         label: 'Home page',
         destination: '/HomePage',
     });
-    const settingsLink = AppLink.create(app, {
+    const ProductsPageLink = AppLink.create(app, {
         label: 'Products page',
         destination: '/ProductsPage',
 
     });
-    const emptyStateLink = AppLink.create(app, {
+    const AddProductLink = AppLink.create(app, {
         label: 'Add product',
         destination: '/AddProductPage',
     });
     const navigationMenu = NavigationMenu.create(app, {
-        items: [itemsLink, settingsLink, emptyStateLink],
-        // active: settingsLink
+        items: [HomePageLink, ProductsPageLink, AddProductLink],
     });
-
 
 
     return <ApolloProvider client={client}>{children}</ApolloProvider>;

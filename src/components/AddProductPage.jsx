@@ -29,7 +29,15 @@ export function AddProductPage() {
         replace: (path) => {
             navigate(path)
         }
-    }), [])
+    }), [navigate])
+
+    //  let navigate = useNavigate();
+    // let location = useLocation()
+    // useRoutePropagation(location)
+    // useClientRouting({replace:(path) => {
+    //                 navigate(path)
+    //             }})
+
 
     const [addProduct, {loading, error, data}] = useMutation(ADD_PRODUCT)
 
@@ -66,18 +74,14 @@ export function AddProductPage() {
     }
     if (loading) return <Loading/>
     if (data) return <Toast
-        content="Product created!"
+        content="Product created!🎉"
         onDismiss={routeProducts}
     />
 
 
     return (
 
-        <Page>
-            <DisplayText size="large">
-                Creation of a new product:
-            </DisplayText>
-
+        <Page title={"Creation of a new product:"}>
             <Form onSubmit={handleSubmit}>
                 <FormLayout>
 
@@ -105,7 +109,7 @@ export function AddProductPage() {
                     />
                     <ButtonGroup spacing="loose">
                         <Button onClick={routeProducts}>Back</Button>
-                        <Button submit
+                        <Button submit disabled={title ? false : true}
                                 primary>Save product</Button>
                     </ButtonGroup>
 
