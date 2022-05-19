@@ -62,7 +62,7 @@ const GET_PRODUCTS = gql`
 }
 `;
 
-const PRODUCTS_COUNT = 4
+const PRODUCTS_COUNT = 3
 
 export function ProductsPage() {
 
@@ -230,7 +230,7 @@ export function ProductsPage() {
                                                 <p>price: ${price}</p>
                                             </Stack.Item>
                                         </Stack>
-                                        <div>{id}</div>
+                                        {/*<div>{id}</div>*/}
                                     </ResourceItem>
                                 );
                             }}
