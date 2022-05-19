@@ -5,26 +5,23 @@ import {
     InMemoryCache,
 } from "@apollo/client";
 import {
-    Provider as AppBridgeProvider, TitleBar,
+    Provider as AppBridgeProvider,
     useAppBridge
 } from "@shopify/app-bridge-react";
 import {authenticatedFetch} from "@shopify/app-bridge-utils";
-import {AppLink, NavigationMenu, Redirect} from "@shopify/app-bridge/actions";
+import { Redirect} from "@shopify/app-bridge/actions";
 import {AppProvider as PolarisProvider, Page} from "@shopify/polaris";
 import translations from "@shopify/polaris/locales/en.json";
 import "@shopify/polaris/build/esm/styles.css";
 import {ProductsPage} from "./components/ProductsPage";
 import {HomePage} from "./components/HomePage";
 import {AddProductPage} from "./components/AddProductPage";
-import {BrowserRouter, Route, Routes, useLocation, useNavigate} from "react-router-dom";
+import {BrowserRouter, Route, Routes} from "react-router-dom";
 import EditProductPage from "./components/EditProductPage";
-import {Children, useCallback, useEffect, useState} from "react";
-
+import NavigationBar from "./components/NavigationBar";
 
 
 export default function App() {
-
-    const secondaryActions = [{content: 'Add product', url: '/AddProductPage'}];
 
     return (
         <BrowserRouter>
@@ -37,13 +34,7 @@ export default function App() {
                     }}>
 
                     <MyProvider>
-                        <TitleBar
-
-                            title={location.pathname.replace(location.pathname[0], "", 1)
-                            }
-                            secondaryActions={secondaryActions}
-                        />
-
+                        <NavigationBar/>
                         <Routes>
                             <Route exact path="/ProductsPage" element={<ProductsPage/>}/>
                             <Route exact path="/AddProductPage" element={<AddProductPage/>}/>
@@ -83,54 +74,6 @@ function MyProvider({children}) {
         }),
     });
 
-
-    const HomePageLink = AppLink.create(app, {
-        label: 'Home page',
-        destination: '/HomePage',
-    });
-    const ProductsPageLink = AppLink.create(app, {
-        label: 'Products page',
-        destination: '/ProductsPage',
-
-    });
-    const AddProductLink = AppLink.create(app, {
-        label: 'Add product',
-        destination: '/AddProductPage',
-    });
-    const navigationMenu = NavigationMenu.create(app, {
-        items: [HomePageLink, ProductsPageLink, AddProductLink],
-        active: HomePageLink,
-    });
-
-    // app.subscribe(Redirect.Action.APP, () => {navigationMenu.children.find(children =>
-    //     children.destination === location.pathname)})
-
-    // app.subscribe(Redirect.Action.APP, () => {
-    //     navigationMenu.items.map((item, index)=>{
-    //        if (item.destination.path === location.pathname)
-    //             console.log(navigationMenu.items[index])
-    //
-    //     })})
-
-    // app.subscribe(Redirect.Action.APP, () => {
-    //     navigationMenu.items.map((item, index) => {
-    //         if (navigationMenu.items[0].destination.path === location.pathname)
-    //             navigationMenu.set({active: HomePageLink})
-    //         else if (navigationMenu.items[1].destination.path === location.pathname)
-    //             navigationMenu.set({active: ProductsPageLink})
-    //         else if (navigationMenu.items[2].destination.path === location.pathname)
-    //             navigationMenu.set({active: AddProductLink})
-    //         else navigationMenu.set({active: HomePageLink})
-    //
-    //     })
-    // })
-
-    app.subscribe(Redirect.Action.APP, (path) => {
-       let link = navigationMenu.children.find(children =>
-            children.destination === path.path)
-        navigationMenu.set({active: link})
-        console.log(navigationMenu.activeOptions.destination)
-    })
     return <ApolloProvider client={client}>{children}</ApolloProvider>;
 }
 
