@@ -16,8 +16,9 @@ import "@shopify/polaris/build/esm/styles.css";
 import {ProductsPage} from "./components/ProductsPage";
 import {HomePage} from "./components/HomePage";
 import {AddProductPage} from "./components/AddProductPage";
-import {BrowserRouter, Route, Routes, useParams} from "react-router-dom";
+import {BrowserRouter, Route, Routes} from "react-router-dom";
 import EditProductPage from "./components/EditProductPage";
+import {useCallback, useEffect} from "react";
 
 
 export default function App() {
@@ -35,20 +36,18 @@ export default function App() {
                     }}>
 
                     <MyProvider>
-
                         <TitleBar
                             title={location.pathname.replace(location.pathname[0], "", 1)}
                             secondaryActions={secondaryActions}
                         />
 
                         <Routes>
-                            <Route path="/EditProductPage/:id" element={<EditProductPage/>}/>
-                            <Route path="/HomePage" element={<HomePage/>}/>
-                            <Route path="/ProductsPage" element={<ProductsPage/>}/>
-                            <Route path="/AddProductPage" element={<AddProductPage/>}/>
-                            <Route path='/*' element={<HomePage/>}/>
+                            <Route exact path="/ProductsPage" element={<ProductsPage/>}/>
+                            <Route exact path="/AddProductPage" element={<AddProductPage/>}/>
+                            <Route exact path="/EditProductPage/:id" element={<EditProductPage/>}/>
+                            <Route exact path="/HomePage" element={<HomePage/>}/>
+                            <Route exact path='/*' element={<HomePage/>}/>
                         </Routes>
-
                     </MyProvider>
                 </AppBridgeProvider>
             </PolarisProvider>
@@ -59,17 +58,25 @@ export default function App() {
 function MyProvider({children}) {
     const app = useAppBridge();
 
+
     const client = new ApolloClient({
-        queryDeduplication: false,
-        defaultOptions: {
-            watchQuery: {
-                fetchPolicy: 'no-cache',
-            },
-        },
+
         cache: new InMemoryCache(),
         link: new HttpLink({
             credentials: "include",
             fetch: userLoggedInFetch(app),
+            defaultOptions: {
+                watchQuery: {
+                    fetchPolicy: 'no-cache',
+                    nextFetchPolicy: 'no-cache',
+                    errorPolicy: 'ignore',
+                },
+                query: {
+                    fetchPolicy: 'no-cache',
+                    nextFetchPolicy: 'no-cache',
+                    errorPolicy: 'all',
+                },
+            },
         }),
     });
 

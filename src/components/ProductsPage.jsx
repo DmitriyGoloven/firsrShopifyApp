@@ -13,9 +13,9 @@ import {
     Filters,
     Button
 } from "@shopify/polaris";
-import {Loading, useClientRouting, useNavigate, useRoutePropagation} from "@shopify/app-bridge-react";
+import {Loading, useClientRouting, useRoutePropagation} from "@shopify/app-bridge-react";
 import {useEffect, useState, useCallback, useMemo} from "react";
-import {useLocation} from "react-router-dom";
+import {useLocation,  useNavigate} from "react-router-dom";
 import {useSearchParams} from "react-router-dom";
 
 const GET_PRODUCTS = gql`
@@ -66,23 +66,14 @@ const PRODUCTS_COUNT = 4
 
 export function ProductsPage() {
 
-    const location = useLocation();
+    let location = useLocation();
+    let navigate = useNavigate();
     useRoutePropagation(location);
-
-    const navigate = useNavigate();
-    useCallback(() => useClientRouting({
-        replace: (path) => {
-            navigate(path)
+    useClientRouting({
+        replace(path) {
+            navigate(path);
         }
-    }), [navigate])
-
-    // let navigate = useNavigate();
-    // let location = useLocation()
-    // useRoutePropagation(location)
-    // useClientRouting({replace:(path) => {
-    //         navigate(path)
-    //     }})
-
+    });
 
     const [getProducts, {loading, error, data, previousData}] = useLazyQuery(GET_PRODUCTS)
     const [searchParams, setSearchParams] = useSearchParams({revers: false, sortValue: "A-Z", queryValue: ""})

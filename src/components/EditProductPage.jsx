@@ -6,8 +6,8 @@ import {
     Page,
     TextField,
 } from "@shopify/polaris";
-import {useLocation, useParams, useSearchParams} from "react-router-dom";
-import {Loading, Toast, useClientRouting, useNavigate, useRoutePropagation} from "@shopify/app-bridge-react";
+import {useLocation, useParams, useNavigate, useSearchParams} from "react-router-dom";
+import {Loading, Toast, useClientRouting, useRoutePropagation} from "@shopify/app-bridge-react";
 import {gql, useMutation, useQuery} from "@apollo/client";
 
 const EDIT_PRODUCT = gql`
@@ -35,14 +35,13 @@ const GET_PRODUCT = gql`
 const EditProductPage = () => {
 
     let location = useLocation();
-    useRoutePropagation(location);
-
     let navigate = useNavigate();
-    useCallback(() => useClientRouting({
-        replace: (path) => {
-            navigate(path)
+    useRoutePropagation(location);
+    useClientRouting({
+        replace(path) {
+            navigate(path);
         }
-    }), [navigate])
+    });
 
     const params = useParams();
     const prodId = params.id;

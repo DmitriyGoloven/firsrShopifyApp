@@ -6,8 +6,8 @@ import {
     Heading, DisplayText, TextStyle, Button,
 } from "@shopify/polaris";
 
-import {useAppBridge, useClientRouting, useNavigate, useRoutePropagation} from "@shopify/app-bridge-react";
-import {useLocation} from "react-router-dom";
+import {useAppBridge, useClientRouting, useRoutePropagation} from "@shopify/app-bridge-react";
+import {useLocation,useNavigate} from "react-router-dom";
 import {useCallback, useEffect, useState} from "react";
 
 import {userLoggedInFetch} from "../App";
@@ -15,20 +15,15 @@ import {userLoggedInFetch} from "../App";
 export function HomePage() {
 
     let location = useLocation();
-    useRoutePropagation(location);
-
     let navigate = useNavigate();
-    useCallback(() => useClientRouting({
-        replace: (path) => {
-            navigate(path)}
-    }), [navigate])
+    useRoutePropagation(location);
+    useClientRouting({
+        replace(path) {
+            navigate(path);
+        }
+    });
 
-    // let navigate = useNavigate();
-    // let location = useLocation()
-    // useRoutePropagation(location)
-    // useClientRouting({replace:(path) => {
-    //         navigate(path)
-    //     }})
+
 
     const [productCount, setProductCount] = useState(0);
 
