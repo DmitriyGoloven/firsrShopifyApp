@@ -11,7 +11,8 @@ import {
     Stack,
     ResourceList,
     Filters,
-    Button
+    Button,
+    TextField
 } from "@shopify/polaris";
 import {Loading, useClientRouting, useRoutePropagation} from "@shopify/app-bridge-react";
 import {useEffect, useState, useCallback, useMemo} from "react";
@@ -76,7 +77,10 @@ export function ProductsPage() {
     });
 
     const [getProducts, {loading, error, data, previousData}] = useLazyQuery(GET_PRODUCTS)
+    const [taggedWith, setTaggedWith] = useState('VIP')
     const [searchParams, setSearchParams] = useSearchParams({revers: false, sortValue: "A-Z", queryValue: ""})
+
+    const handleTaggedWithChange = useCallback((value) => setTaggedWith(value), [],);
 
     const changeSortValue = useCallback((sortValue) => {
         setSearchParams({queryValue: searchParams.get("queryValue"), sortValue: sortValue})
@@ -88,6 +92,12 @@ export function ProductsPage() {
 
     const handleQueryValueRemove = useCallback(() => setSearchParams(
         {sortValue: searchParams.get("sortValue"), queryValue: ""}), [searchParams]);
+
+    const handleTaggedWithRemove = useCallback(() => setTaggedWith(null), []);
+    const handleClearAll = useCallback(() => {
+        handleTaggedWithRemove();
+        handleQueryValueRemove();
+    }, [handleQueryValueRemove, handleTaggedWithRemove]);
 
     let timeout;
     useEffect(() => {
@@ -106,13 +116,46 @@ export function ProductsPage() {
         }, 500);
     }, [searchParams]);
 
+
+    const filters = [
+        {
+            key: 'taggedWith1',
+            label: 'Tagged with',
+            filter: (
+                <TextField
+                    label="Tagged with"
+                    value={taggedWith}
+                    onChange={handleTaggedWithChange}
+                    autoComplete="off"
+                    labelHidden
+                />
+            ),
+            shortcut: true,
+        },
+    ];
+
+    const appliedFilters = !isEmpty(taggedWith)
+        ? [
+            {
+                key: 'taggedWith1',
+                label: disambiguateLabel('taggedWith1', taggedWith),
+                onRemove: handleTaggedWithRemove,
+            },
+        ]
+        : [];
+
     const filterControl = (
         <Filters
             queryValue={searchParams.get("queryValue")}
-            filters={[]}
+            filters={filters}
+            appliedFilters={appliedFilters}
             onQueryChange={changeSearch}
             onQueryClear={handleQueryValueRemove}
+            onClearAll={handleClearAll}
         >
+            <div style={{paddingLeft: '8px'}}>
+                <Button onClick={() => console.log('New filter saved')}>Save</Button>
+            </div>
         </Filters>
     );
 
@@ -205,6 +248,7 @@ export function ProductsPage() {
 
                                 return (
                                     <ResourceItem id={id}
+                                                  url={url}
                                                   media={media}
                                                   accessibilityLabel={`View details for ${name}`}
                                                   name={name}
@@ -256,5 +300,21 @@ export function ProductsPage() {
             </Layout>
         </Page>
     );
+    function disambiguateLabel(key, value) {
+        switch (key) {
+            case 'taggedWith1':
+                return `Tagged with ${value}`;
+            default:
+                return value;
+        }
+    }
+
+    function isEmpty(value) {
+        if (Array.isArray(value)) {
+            return value.length === 0;
+        } else {
+            return value === '' || value == null;
+        }
+    }
 }
 

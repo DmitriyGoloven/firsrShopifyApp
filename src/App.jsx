@@ -18,20 +18,13 @@ import {HomePage} from "./components/HomePage";
 import {AddProductPage} from "./components/AddProductPage";
 import {BrowserRouter, Route, Routes, useLocation, useNavigate} from "react-router-dom";
 import EditProductPage from "./components/EditProductPage";
-import {Children, useCallback, useEffect} from "react";
-import {redirect} from "@shopify/app-bridge/client/redirect";
+import {Children, useCallback, useEffect, useState} from "react";
+
 
 
 export default function App() {
 
     const secondaryActions = [{content: 'Add product', url: '/AddProductPage'}];
-
-
-    useEffect(()=>{
-        console.log()
-    },[])
-
-
 
     return (
         <BrowserRouter>
@@ -45,8 +38,8 @@ export default function App() {
 
                     <MyProvider>
                         <TitleBar
-                            title={
-                                location.pathname.replace(location.pathname[0], "", 1)
+
+                            title={location.pathname.replace(location.pathname[0], "", 1)
                             }
                             secondaryActions={secondaryActions}
                         />
@@ -133,13 +126,11 @@ function MyProvider({children}) {
     // })
 
     app.subscribe(Redirect.Action.APP, (path) => {
-        const link = navigationMenu.children.find(children =>
+       let link = navigationMenu.children.find(children =>
             children.destination === path.path)
-    //   console.log({active: HomePageLink})
-    // console.log({active: link})
         navigationMenu.set({active: link})
+        console.log(navigationMenu.activeOptions.destination)
     })
-
     return <ApolloProvider client={client}>{children}</ApolloProvider>;
 }
 
