@@ -77,7 +77,7 @@ export function ProductsPage() {
     });
 
     const [getProducts, {loading, error, data, previousData}] = useLazyQuery(GET_PRODUCTS)
-    const [taggedWith, setTaggedWith] = useState('VIP')
+    const [taggedWith, setTaggedWith] = useState('Filter')
     const [searchParams, setSearchParams] = useSearchParams({revers: false, sortValue: "A-Z", queryValue: ""})
 
     const handleTaggedWithChange = useCallback((value) => setTaggedWith(value), [],);

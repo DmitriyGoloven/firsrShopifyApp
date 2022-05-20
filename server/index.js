@@ -1,8 +1,8 @@
 // @ts-check
-import { resolve } from "path";
+import {resolve} from "path";
 import express from "express";
 import cookieParser from "cookie-parser";
-import { Shopify, ApiVersion } from "@shopify/shopify-api";
+import {ApiVersion, Shopify} from "@shopify/shopify-api";
 import "dotenv/config";
 
 import applyAuthMiddleware from "./middleware/auth.js";
@@ -70,6 +70,29 @@ export async function createServer(
     const countData = await Product.count({ session });
     res.status(200).send(countData);
   });
+
+
+  app.get("/product", verifyRequest(app), async (req, res) => {
+    const session = await Shopify.Utils.loadCurrentSession(req, res, true);
+    const { Product } = await import(
+        `@shopify/shopify-api/dist/rest-resources/${Shopify.Context.API_VERSION}/index.js`
+        );
+
+    const countData = await Product.count({ session: session, published_status : 'published' });
+    res.status(200).send(countData);
+  });
+
+  app.get("/productu", verifyRequest(app), async (req, res) => {
+    const session = await Shopify.Utils.loadCurrentSession(req, res, true);
+    const { Product } = await import(
+        `@shopify/shopify-api/dist/rest-resources/${Shopify.Context.API_VERSION}/index.js`
+        );
+
+    const countData = await Product.count({ session: session, published_status : 'unpublished' });
+    res.status(200).send(countData);
+  });
+
+
 
   app.post("/graphql", verifyRequest(app), async (req, res) => {
     try {

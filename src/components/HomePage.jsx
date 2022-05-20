@@ -23,9 +23,9 @@ export function HomePage() {
         }
     });
 
-
-
     const [productCount, setProductCount] = useState(0);
+    const [productCount1, setProductCount1] = useState(0);
+    const [productCount2, setProductCount2] = useState(0);
 
     const app = useAppBridge();
     const fetch = userLoggedInFetch(app);
@@ -34,9 +34,23 @@ export function HomePage() {
         const {count} = await fetch("/products/count").then((res) => res.json());
         setProductCount(count);
     }
+    async function updateProduct() {
+        const {count} = await fetch("/product").then((res) => res.json());
+        setProductCount1(count)
+        console.log({count});
+    }
+    async function updateProductu() {
+        const {count} = await fetch("/productu").then((res) => res.json());
+        setProductCount2(count)
+        console.log({count});
+    }
+
+
 
     useEffect(() => {
         updateProductCount();
+        updateProduct()
+        updateProductu()
     }, []);
 
     const routeProducts = () => {
@@ -63,9 +77,9 @@ export function HomePage() {
                     <Card title="Product Count" sectioned>
                         <TextContainer spacing="loose">
                             <Heading element="h4">
-                                TOTAL PRODUCTS
+                                PUBLISHED
                                 <DisplayText size="medium">
-                                    <TextStyle variation="strong">{productCount}</TextStyle>
+                                    <TextStyle variation="strong">{productCount1}</TextStyle>
                                 </DisplayText>
                             </Heading>
                         </TextContainer>
@@ -75,9 +89,9 @@ export function HomePage() {
                     <Card title="Product Count" sectioned>
                         <TextContainer spacing="loose">
                             <Heading element="h4">
-                                TOTAL PRODUCTS
+                                UNPUBLISHED
                                 <DisplayText size="medium">
-                                    <TextStyle variation="strong">{productCount}</TextStyle>
+                                    <TextStyle variation="strong">{productCount2}</TextStyle>
                                 </DisplayText>
                             </Heading>
                         </TextContainer>
