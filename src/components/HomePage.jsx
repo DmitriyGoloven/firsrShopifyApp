@@ -36,13 +36,11 @@ export function HomePage() {
     }
     async function updateProduct() {
         const {count} = await fetch("/product").then((res) => res.json());
-        setProductCount1(count)
-        console.log({count});
+        setProductCount1(count);
     }
     async function updateProductu() {
         const {count} = await fetch("/productu").then((res) => res.json());
         setProductCount2(count)
-        console.log({count});
     }
 
 

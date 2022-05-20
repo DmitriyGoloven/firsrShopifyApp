@@ -16,7 +16,7 @@ import {
 } from "@shopify/polaris";
 import {Loading, useClientRouting, useRoutePropagation} from "@shopify/app-bridge-react";
 import {useEffect, useState, useCallback, useMemo} from "react";
-import {useLocation,  useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {useSearchParams} from "react-router-dom";
 
 const GET_PRODUCTS = gql`
@@ -77,37 +77,52 @@ export function ProductsPage() {
     });
 
     const [getProducts, {loading, error, data, previousData}] = useLazyQuery(GET_PRODUCTS)
-    const [taggedWith, setTaggedWith] = useState('Filter')
+    const [taggedWith, setTaggedWith] = useState('')
     const [searchParams, setSearchParams] = useSearchParams({revers: false, sortValue: "A-Z", queryValue: ""})
 
-    const handleTaggedWithChange = useCallback((value) => setTaggedWith(value), [],);
+    const handleTaggedWithChange = useCallback((value) => {
+        setTaggedWith(value);
+        setSearchParams({tagged: value})
+    }, [],);
 
     const changeSortValue = useCallback((sortValue) => {
         setSearchParams({queryValue: searchParams.get("queryValue"), sortValue: sortValue})
     }, [searchParams])
 
     const changeSearch = useCallback((queryValue) => {
-        setSearchParams({sortValue: searchParams.get("sortValue"), queryValue: queryValue})
+        setSearchParams({sortValue: searchParams.get("sortValue"), queryValue: queryValue,
+            tagged: searchParams.get("tagged")})
     }, [searchParams])
 
     const handleQueryValueRemove = useCallback(() => setSearchParams(
         {sortValue: searchParams.get("sortValue"), queryValue: ""}), [searchParams]);
 
-    const handleTaggedWithRemove = useCallback(() => setTaggedWith(null), []);
+    const handleTaggedWithRemove = useCallback(() => setTaggedWith(""), []);
     const handleClearAll = useCallback(() => {
         handleTaggedWithRemove();
         handleQueryValueRemove();
     }, [handleQueryValueRemove, handleTaggedWithRemove]);
 
+    const querySearch = useCallback(() => {
+        if (searchParams.get("tagged")) {
+            return `(title:${searchParams.get("queryValue")}*) AND (tag:${searchParams.get("tagged")})`
+        }
+        if (!searchParams.get("tagged")) {
+            return `(title:${searchParams.get("queryValue")}*)`
+        }
+
+    }, [searchParams])
+
     let timeout;
     useEffect(() => {
         clearTimeout(timeout)
+        console.log(searchParams.get("tagged"))
         timeout = setTimeout(() => {
             getProducts({
                 variables: {
                     revers: searchParams.get("sortValue") === "Z-A",
                     count: PRODUCTS_COUNT,
-                    search: searchParams.get("queryValue"),
+                    search: querySearch(),
                     startCursor: null,
                     countLast: null,
                     endCursor: null,
@@ -300,6 +315,7 @@ export function ProductsPage() {
             </Layout>
         </Page>
     );
+
     function disambiguateLabel(key, value) {
         switch (key) {
             case 'taggedWith1':

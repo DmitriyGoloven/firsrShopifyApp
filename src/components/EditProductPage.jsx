@@ -53,7 +53,8 @@ const EditProductPage = () => {
     });
     const [productUpdate, {loading: loadingP, error: errorP, data: dataP}] = useMutation(EDIT_PRODUCT)
 
-    const [searchParams, setSearchParams] = useSearchParams({title: "", descriptionHtml: ""})
+
+    const [searchParams, setSearchParams] = useState({title: "", descriptionHtml: ""})
     const [previousData, setPreviousData] = useState({title: "", descriptionHtml: ""});
 
     useEffect(() => {
@@ -69,8 +70,8 @@ const EditProductPage = () => {
             variables: {
                 input: {
                     id: `gid://shopify/Product/${prodId}`,
-                    title: searchParams.get("title"),
-                    descriptionHtml: searchParams.get("descriptionHtml"),
+                    title: searchParams.title,
+                    descriptionHtml: searchParams.descriptionHtml,
                 }
             }
         })
@@ -80,12 +81,12 @@ const EditProductPage = () => {
 
     const handleTitleChange = useCallback((value) => {
         setSearchParams(
-            {title: value, descriptionHtml: searchParams.get("descriptionHtml")})
+            {title: value, descriptionHtml: searchParams.descriptionHtml})
     }, [searchParams]);
 
     const handleDescriptionChange = useCallback((value) => {
         setSearchParams(
-            {descriptionHtml: value, title: searchParams.get("title")})
+            {descriptionHtml: value, title: searchParams.title})
     }, [searchParams]);
 
     const routeProducts = () => {
@@ -113,7 +114,7 @@ const EditProductPage = () => {
             <Form onSubmit={handleSubmit} loading={loadingP}>
                 <FormLayout>
                     <TextField
-                        value={searchParams.get("title")}
+                        value={searchParams.title}
                         onChange={handleTitleChange}
                         label="Title"
                         type="text"
@@ -124,7 +125,7 @@ const EditProductPage = () => {
                         }
                     />
                     <TextField
-                        value={searchParams.get("descriptionHtml")}
+                        value={searchParams.descriptionHtml}
                         onChange={handleDescriptionChange}
                         label="Description"
                         type="text"
@@ -136,8 +137,8 @@ const EditProductPage = () => {
                     />
                     <ButtonGroup spacing="loose">
                         <Button onClick={routeProducts}>Back</Button>
-                        <Button submit disabled={(previousData.title === searchParams.get("title")) &&
-                        (previousData.descriptionHtml === searchParams.get("descriptionHtml"))}
+                        <Button submit disabled={(previousData.title === searchParams.title) &&
+                        (previousData.descriptionHtml === searchParams.descriptionHtml)}
                                 primary>Save product</Button>
                     </ButtonGroup>
                 </FormLayout>
