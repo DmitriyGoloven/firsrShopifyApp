@@ -38,7 +38,6 @@ const NavigationBar = () => {
         let link = navigationMenu.children.find(children =>
             children.destination === path.path)
         navigationMenu.set({active: link})
-console.log(navigationMenu)
         myTitleBar.set({
             title: navigationMenu.activeOptions.destination.replace(
                 navigationMenu.activeOptions.destination[0], "", 1),

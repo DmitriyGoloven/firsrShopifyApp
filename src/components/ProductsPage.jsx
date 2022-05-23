@@ -82,11 +82,12 @@ export function ProductsPage() {
 
     const handleTaggedWithChange = useCallback((value) => {
         setTaggedWith(value);
-        setSearchParams({tagged: value})
+        setSearchParams({...searchParams,tagged: value})
     }, [],);
 
     const changeSortValue = useCallback((sortValue) => {
-        setSearchParams({queryValue: searchParams.get("queryValue"), sortValue: sortValue})
+        setSearchParams({queryValue: searchParams.get("queryValue"), sortValue: sortValue,
+            tagged: searchParams.get("tagged")})
     }, [searchParams])
 
     const changeSearch = useCallback((queryValue) => {
@@ -94,29 +95,32 @@ export function ProductsPage() {
             tagged: searchParams.get("tagged")})
     }, [searchParams])
 
-    const handleQueryValueRemove = useCallback(() => setSearchParams(
-        {sortValue: searchParams.get("sortValue"), queryValue: ""}), [searchParams]);
+    const handleQueryValueRemove = useCallback(() => {
+        setSearchParams({sortValue: searchParams.get("sortValue"),
+            queryValue: "",tagged: searchParams.get("tagged")})}, [searchParams]);
 
-    const handleTaggedWithRemove = useCallback(() => setTaggedWith(""), []);
+    const handleTaggedWithRemove = useCallback(() => {
+        setSearchParams({ sortValue: searchParams.get("sortValue"), tagged: "",});
+        setTaggedWith("")}, []);
+
     const handleClearAll = useCallback(() => {
         handleTaggedWithRemove();
         handleQueryValueRemove();
     }, [handleQueryValueRemove, handleTaggedWithRemove]);
 
     const querySearch = useCallback(() => {
-        if (searchParams.get("tagged")) {
-            return `(title:${searchParams.get("queryValue")}*) AND (tag:${searchParams.get("tagged")})`
-        }
-        if (!searchParams.get("tagged")) {
-            return `(title:${searchParams.get("queryValue")}*)`
-        }
 
-    }, [searchParams])
+        return taggedWith ? `(title:${searchParams.get("queryValue")}*) AND (tag:${searchParams.get("tagged")})`
+            : searchParams.get("queryValue")
+
+
+    }, [searchParams,taggedWith])
 
     let timeout;
     useEffect(() => {
         clearTimeout(timeout)
-        console.log(searchParams.get("tagged"))
+        // console.log(searchParams.get("tagged")===null)
+         console.log(querySearch())
         timeout = setTimeout(() => {
             getProducts({
                 variables: {
@@ -129,7 +133,7 @@ export function ProductsPage() {
                 }
             })
         }, 500);
-    }, [searchParams]);
+    }, [data,searchParams,taggedWith]);
 
 
     const filters = [
@@ -197,6 +201,7 @@ export function ProductsPage() {
     }, [data]);
 
     const reverseSearch = useCallback((selected) => {
+
         getProducts({
             variables: {
                 revers: selected,
@@ -207,7 +212,7 @@ export function ProductsPage() {
 
             }
         })
-    }, [])
+    }, [searchParams])
 
     if (error) {
         console.warn(error);
