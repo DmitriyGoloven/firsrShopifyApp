@@ -103,10 +103,6 @@ export function ProductsPage() {
         setSearchParams({ sortValue: searchParams.get("sortValue"), tagged: "",});
         setTaggedWith("")}, []);
 
-    const handleClearAll = useCallback(() => {
-        handleTaggedWithRemove();
-        handleQueryValueRemove();
-    }, [handleQueryValueRemove, handleTaggedWithRemove]);
 
     const querySearch = useCallback(() => {
         return searchParams.get("tagged") ?
@@ -168,7 +164,6 @@ export function ProductsPage() {
             appliedFilters={appliedFilters}
             onQueryChange={changeSearch}
             onQueryClear={handleQueryValueRemove}
-            // onClearAll={handleClearAll}
         >
             <div style={{paddingLeft: '8px'}}>
                 <Button onClick={() => console.log('New filter saved')}>Save</Button>
