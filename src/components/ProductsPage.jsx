@@ -78,12 +78,12 @@ export function ProductsPage() {
 
     const [getProducts, {loading, error, data, previousData}] = useLazyQuery(GET_PRODUCTS)
     const [taggedWith, setTaggedWith] = useState('')
-    const [searchParams, setSearchParams] = useSearchParams({revers: false, sortValue: "A-Z", queryValue: ""})
+    const [searchParams, setSearchParams] = useSearchParams({revers: false, sortValue: "A-Z", queryValue: "",tagged: ""})
 
     const handleTaggedWithChange = useCallback((value) => {
         setTaggedWith(value);
-        setSearchParams({...searchParams,tagged: value})
-    }, [],);
+        setSearchParams({tagged: value})
+    }, [searchParams],);
 
     const changeSortValue = useCallback((sortValue) => {
         setSearchParams({queryValue: searchParams.get("queryValue"), sortValue: sortValue,
@@ -92,7 +92,7 @@ export function ProductsPage() {
 
     const changeSearch = useCallback((queryValue) => {
         setSearchParams({sortValue: searchParams.get("sortValue"), queryValue: queryValue,
-            tagged: searchParams.get("tagged")})
+             tagged: searchParams.get("tagged")})
     }, [searchParams])
 
     const handleQueryValueRemove = useCallback(() => {
@@ -109,17 +109,15 @@ export function ProductsPage() {
     }, [handleQueryValueRemove, handleTaggedWithRemove]);
 
     const querySearch = useCallback(() => {
-
-        return taggedWith ? `(title:${searchParams.get("queryValue")}*) AND (tag:${searchParams.get("tagged")})`
+        return searchParams.get("tagged") ?
+            `(title:${searchParams.get("queryValue")}*) AND (tag:${searchParams.get("tagged")}*)`
             : searchParams.get("queryValue")
-
-
     }, [searchParams,taggedWith])
 
     let timeout;
     useEffect(() => {
+        // console.log(!isEmpty(searchParams.get("tagged")))
         clearTimeout(timeout)
-        // console.log(searchParams.get("tagged")===null)
          console.log(querySearch())
         timeout = setTimeout(() => {
             getProducts({
@@ -143,7 +141,7 @@ export function ProductsPage() {
             filter: (
                 <TextField
                     label="Tagged with"
-                    value={taggedWith}
+                    value={searchParams.get("tagged")}
                     onChange={handleTaggedWithChange}
                     autoComplete="off"
                     labelHidden
@@ -153,11 +151,11 @@ export function ProductsPage() {
         },
     ];
 
-    const appliedFilters = !isEmpty(taggedWith)
+    const appliedFilters = !isEmpty(searchParams.get("tagged"))
         ? [
             {
                 key: 'taggedWith1',
-                label: disambiguateLabel('taggedWith1', taggedWith),
+                label: disambiguateLabel('taggedWith1', searchParams.get("tagged")),
                 onRemove: handleTaggedWithRemove,
             },
         ]
@@ -170,7 +168,7 @@ export function ProductsPage() {
             appliedFilters={appliedFilters}
             onQueryChange={changeSearch}
             onQueryClear={handleQueryValueRemove}
-            onClearAll={handleClearAll}
+            // onClearAll={handleClearAll}
         >
             <div style={{paddingLeft: '8px'}}>
                 <Button onClick={() => console.log('New filter saved')}>Save</Button>
