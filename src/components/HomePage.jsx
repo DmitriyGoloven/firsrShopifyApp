@@ -18,10 +18,7 @@ export function HomePage() {
     let navigate = useNavigate();
     useRoutePropagation(location);
     useClientRouting({
-        replace(path) {
-            navigate(path);
-        }
-    });
+        replace:navigate});
 
     const [productCount, setProductCount] = useState(0);
     const [productCount1, setProductCount1] = useState(0);

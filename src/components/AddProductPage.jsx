@@ -25,10 +25,7 @@ export function AddProductPage() {
     let navigate = useNavigate();
     useRoutePropagation(location);
     useClientRouting({
-        replace(path) {
-            navigate(path);
-        }
-    });
+        replace:navigate});
 
 
     const [addProduct, {loading, error, data}] = useMutation(ADD_PRODUCT)

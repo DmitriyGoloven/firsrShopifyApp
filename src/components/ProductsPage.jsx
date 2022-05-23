@@ -71,64 +71,103 @@ export function ProductsPage() {
     let navigate = useNavigate();
     useRoutePropagation(location);
     useClientRouting({
-        replace(path) {
-            navigate(path);
-        }
+        replace: navigate
     });
 
     const [getProducts, {loading, error, data, previousData}] = useLazyQuery(GET_PRODUCTS)
-    const [taggedWith, setTaggedWith] = useState('')
-    const [searchParams, setSearchParams] = useSearchParams({revers: false, sortValue: "A-Z", queryValue: "",tagged: ""})
+
+    const [searchParams, setSearchParams] = useSearchParams({
+        revers: false, sortValue: "A-Z", queryValue: "", tagged: "",
+        count: PRODUCTS_COUNT, countLast: null, startCursor: null, endCursor: null,
+    })
+
+    //Change sort,filters search params
 
     const handleTaggedWithChange = useCallback((value) => {
-        setTaggedWith(value);
-        setSearchParams({tagged: value})
+        setSearchParams({
+            tagged: value, queryValue: searchParams.get("queryValue"),
+            sortValue: searchParams.get("sortValue")
+        })
     }, [searchParams],);
 
     const changeSortValue = useCallback((sortValue) => {
-        setSearchParams({queryValue: searchParams.get("queryValue"), sortValue: sortValue,
-            tagged: searchParams.get("tagged")})
+        setSearchParams({
+            queryValue: searchParams.get("queryValue"), sortValue: sortValue,
+            tagged: searchParams.get("tagged")
+        })
     }, [searchParams])
 
     const changeSearch = useCallback((queryValue) => {
-        setSearchParams({sortValue: searchParams.get("sortValue"), queryValue: queryValue,
-             tagged: searchParams.get("tagged")})
+        setSearchParams({
+            sortValue: searchParams.get("sortValue"), queryValue: queryValue,
+            tagged: searchParams.get("tagged")
+        })
     }, [searchParams])
-
-    const handleQueryValueRemove = useCallback(() => {
-        setSearchParams({sortValue: searchParams.get("sortValue"),
-            queryValue: "",tagged: searchParams.get("tagged")})}, [searchParams]);
-
-    const handleTaggedWithRemove = useCallback(() => {
-        setSearchParams({ sortValue: searchParams.get("sortValue"), tagged: "",});
-        setTaggedWith("")}, []);
-
 
     const querySearch = useCallback(() => {
         return searchParams.get("tagged") ?
             `(title:${searchParams.get("queryValue")}*) AND (tag:${searchParams.get("tagged")}*)`
             : searchParams.get("queryValue")
-    }, [searchParams,taggedWith])
+    }, [searchParams])
+
+    // Remove filters actions
+
+    const handleQueryValueRemove = useCallback(() => {
+        setSearchParams({
+            sortValue: searchParams.get("sortValue"),
+            queryValue: "", tagged: searchParams.get("tagged")
+        })
+    }, [searchParams]);
+
+    const handleTaggedWithRemove = useCallback(() => {
+        setSearchParams({sortValue: searchParams.get("sortValue"), tagged: "",});
+    }, [searchParams]);
+
+
+    //Pagination
+
+    const nextPage = useCallback(() => {
+        setSearchParams({
+            sortValue: searchParams.get("sortValue"),
+            endCursor: data.products.pageInfo.endCursor,
+            count: searchParams.get("count"),
+            queryValue: searchParams.get("queryValue"),
+            tagged: searchParams.get("tagged")
+        })
+    }, [data, searchParams]);
+
+    const previousPage = useCallback(() => {
+        setSearchParams({
+            sortValue: searchParams.get("sortValue"),
+            endCursor: null,
+            count: null,
+            queryValue: searchParams.get("queryValue"),
+            tagged: searchParams.get("tagged"),
+            startCursor: data.products.pageInfo.startCursor,
+            countLast: PRODUCTS_COUNT,
+        })
+    }, [data, searchParams]);
+
+    // Request
 
     let timeout;
     useEffect(() => {
-        // console.log(!isEmpty(searchParams.get("tagged")))
         clearTimeout(timeout)
-         console.log(querySearch())
         timeout = setTimeout(() => {
             getProducts({
                 variables: {
                     revers: searchParams.get("sortValue") === "Z-A",
-                    count: PRODUCTS_COUNT,
+                    count: searchParams.get("count") === "null" ? null : Number(searchParams.get("count")),
                     search: querySearch(),
-                    startCursor: null,
-                    countLast: null,
-                    endCursor: null,
+                    startCursor: searchParams.get("startCursor") === 'null' ? null : searchParams.get("startCursor"),
+                    countLast: searchParams.get("countLast") === 'null' ? null : Number(searchParams.get("countLast")),
+                    endCursor: searchParams.get("endCursor") === 'null' ? null : searchParams.get("endCursor"),
                 }
             })
         }, 500);
-    }, [data,searchParams,taggedWith]);
+    }, [data, searchParams]);
 
+    //Filters
 
     const filters = [
         {
@@ -149,8 +188,7 @@ export function ProductsPage() {
 
     const appliedFilters = !isEmpty(searchParams.get("tagged"))
         ? [
-            {
-                key: 'taggedWith1',
+            {key: 'taggedWith1',
                 label: disambiguateLabel('taggedWith1', searchParams.get("tagged")),
                 onRemove: handleTaggedWithRemove,
             },
@@ -171,42 +209,6 @@ export function ProductsPage() {
         </Filters>
     );
 
-    const nextPage = useCallback(() => {
-        getProducts({
-            variables: {
-                endCursor: data.products.pageInfo.endCursor,
-                count: PRODUCTS_COUNT,
-                startCursor: null,
-                countLast: null
-            }
-        });
-    }, [data]);
-
-    const previousPage = useCallback(() => {
-        getProducts({
-            variables: {
-                startCursor: data.products.pageInfo.startCursor,
-                countLast: PRODUCTS_COUNT,
-                endCursor: null,
-                count: null
-            }
-        });
-    }, [data]);
-
-    const reverseSearch = useCallback((selected) => {
-
-        getProducts({
-            variables: {
-                revers: selected,
-                count: PRODUCTS_COUNT,
-                startCursor: null,
-                countLast: null,
-                endCursor: null,
-
-            }
-        })
-    }, [searchParams])
-
     if (error) {
         console.warn(error);
         return (
@@ -219,7 +221,6 @@ export function ProductsPage() {
         let path = `/AddProductPage`;
         navigate(path);
     }
-
 
     const paginationInfo = data ? data.products.pageInfo : previousData.products.pageInfo
     return (
@@ -237,8 +238,6 @@ export function ProductsPage() {
                             ]}
                             onSortChange={(selected) => {
                                 changeSortValue(selected)
-                                reverseSearch(selected === 'Z-A')
-
                             }}
                             filterControl={filterControl}
                             showHeader
@@ -266,7 +265,6 @@ export function ProductsPage() {
                                                   accessibilityLabel={`View details for ${name}`}
                                                   name={name}
                                                   onClick={() => {
-
                                                       let path = `/EditProductPage/${idProd}`;
                                                       navigate(path);
                                                   }}
@@ -291,7 +289,6 @@ export function ProductsPage() {
                                     </ResourceItem>
                                 );
                             }}
-
                         />
                         <Button
                             primary
@@ -302,7 +299,6 @@ export function ProductsPage() {
                             Add new product
                         </Button>
                     </Card>
-
                     <Pagination
                         hasPrevious={paginationInfo.hasPreviousPage}
                         onPrevious={previousPage}

@@ -38,10 +38,7 @@ const EditProductPage = () => {
     let navigate = useNavigate();
     useRoutePropagation(location);
     useClientRouting({
-        replace(path) {
-            navigate(path);
-        }
-    });
+        replace:navigate});
 
     const params = useParams();
     const prodId = params.id;
