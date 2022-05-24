@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
     Banner, Button, ButtonGroup,
     Form,
@@ -6,39 +6,21 @@ import {
     Page,
     TextField,
 } from "@shopify/polaris";
-import {useLocation, useParams, useNavigate, useSearchParams} from "react-router-dom";
+import {useLocation, useParams, useNavigate} from "react-router-dom";
 import {Loading, Toast, useClientRouting, useRoutePropagation} from "@shopify/app-bridge-react";
 import {gql, useMutation, useQuery} from "@apollo/client";
+import {EDIT_PRODUCT, GET_PRODUCT} from "../GqlRequests/GqlRequests";
 
-const EDIT_PRODUCT = gql`
-  mutation productUpdate($input: ProductInput!) {
-  productUpdate(input: $input) {
-    product {
-        title
-        descriptionHtml
-        id
-
-      }
-    }
-  }
-`;
-
-const GET_PRODUCT = gql`
-    query getProduct($id: ID!) {
-        product(id: $id) {
-            title
-            descriptionHtml
-        }
-    }
-`;
-
-const EditProductPage = () => {
+const EditProductPage = ({setActivePage, activePage}) => {
 
     let location = useLocation();
     let navigate = useNavigate();
     useRoutePropagation(location);
     useClientRouting({
-        replace:navigate});
+        replace: navigate
+    });
+
+    useEffect(() => setActivePage("Products Page / Edit Product"), [activePage])
 
     const params = useParams();
     const prodId = params.id;

@@ -2,15 +2,17 @@ import {connect} from "react-redux";
 
 import {createStructuredSelector} from "reselect";
 import {HomePage} from "./HomePage";
-import {getProductCount} from "../../store/reducer/actions";
-import {productCount} from "../../store/reducer/selectors";
+import {getProductCount, setActivePage} from "../../store/reducer/actions";
+import {activePage, productCount} from "../../store/reducer/selectors";
 
 const mapStateToProp = createStructuredSelector({
-    productCount
+    productCount,
+    activePage
 })
 
 const mapDispatchToProps = {
     getProductCount,
+    setActivePage
 
 }
 

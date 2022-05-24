@@ -18,54 +18,12 @@ import {Loading, useClientRouting, useRoutePropagation} from "@shopify/app-bridg
 import {useEffect, useState, useCallback, useMemo} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useSearchParams} from "react-router-dom";
+import {GET_PRODUCTS} from "../GqlRequests/GqlRequests";
 
-const GET_PRODUCTS = gql`
-  query GetProducts($count: Int, $countLast: Int, $endCursor: String,
-   $startCursor: String, $revers: Boolean, $search: String) {
-  products(first: $count, after: $endCursor,sortKey:TITLE,
-   reverse: $revers,last: $countLast, before: $startCursor, query: $search) {
-    edges {
-      cursor
-      node {
-        title
-        status
-        handle
-        descriptionHtml
-        id
-        images(first: 1) {
-          edges {
-            node {
-              id
-              originalSrc
-              altText
-            }
-          }
-        }
-        variants(first: 1) {
-          edges {
-            node {
-              position
-              weight
-              price
-              id
-            }
-          }
-        }
-      }
-    }
-    pageInfo {
-      endCursor
-      hasNextPage
-      hasPreviousPage
-      startCursor
-    }
-  }
-}
-`;
 
 const PRODUCTS_COUNT = 3
 
-export function ProductsPage() {
+export function ProductsPage({setActivePage, activePage}) {
 
     let location = useLocation();
     let navigate = useNavigate();
@@ -73,6 +31,9 @@ export function ProductsPage() {
     useClientRouting({
         replace: navigate
     });
+
+    useEffect(() => setActivePage("Products Page"), [activePage])
+
 
     const [getProducts, {loading, error, data, previousData}] = useLazyQuery(GET_PRODUCTS)
 
@@ -188,7 +149,8 @@ export function ProductsPage() {
 
     const appliedFilters = !isEmpty(searchParams.get("tagged"))
         ? [
-            {key: 'taggedWith1',
+            {
+                key: 'taggedWith1',
                 label: disambiguateLabel('taggedWith1', searchParams.get("tagged")),
                 onRemove: handleTaggedWithRemove,
             },

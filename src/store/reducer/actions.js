@@ -7,10 +7,15 @@ const createRequestAction = (type, payload) => {
     return action;
 }
 
+
 export const getProductCount = createRequestAction('GET_PRODUCT_COUNT', () => ({
     request: {
         method: 'get',
         url: '/products/count',
     }
 }));
+
+export const setActivePage = createAction('SET_ACTIVE_PAGE', (payload) => {
+    return payload
+})
 

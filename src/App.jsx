@@ -9,16 +9,16 @@ import {
     useAppBridge
 } from "@shopify/app-bridge-react";
 import {authenticatedFetch} from "@shopify/app-bridge-utils";
-import { Redirect} from "@shopify/app-bridge/actions";
+import {Redirect} from "@shopify/app-bridge/actions";
 import {AppProvider as PolarisProvider, Page} from "@shopify/polaris";
 import translations from "@shopify/polaris/locales/en.json";
 import "@shopify/polaris/build/esm/styles.css";
-import {ProductsPage} from "./components/ProductsPage";
+import ProductsPage from "./components/ProductsPage/index.jsx";
 import HomePage from "./components/HomePage/index.jsx";
-import {AddProductPage} from "./components/AddProductPage";
+import AddProductPage from "./components/AddProductPage/index.jsx";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
-import EditProductPage from "./components/EditProductPage";
-import NavigationBar from "./components/NavigationBar";
+import EditProductPage from "./components/EditProductPage/index.jsx";
+import NavigationBar from "./components/NavigationBar/index.jsx";
 
 
 export default function App() {

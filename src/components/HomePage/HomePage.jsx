@@ -6,12 +6,12 @@ import {
     Heading, DisplayText, TextStyle, Button,
 } from "@shopify/polaris";
 
-import {useAppBridge, useClientRouting, useRoutePropagation} from "@shopify/app-bridge-react";
-import {useLocation,useNavigate} from "react-router-dom";
-import {useCallback, useEffect, useState} from "react";
+import {useClientRouting, useRoutePropagation} from "@shopify/app-bridge-react";
+import {useLocation, useNavigate} from "react-router-dom";
+import {useEffect} from "react";
 
 
-export function HomePage({getProductCount,productCount}) {
+export function HomePage({getProductCount, productCount, setActivePage, activePage}) {
 
     let location = useLocation();
     let navigate = useNavigate();
@@ -23,8 +23,9 @@ export function HomePage({getProductCount,productCount}) {
     });
 
     useEffect(() => {
+        setActivePage("Home Page")
         getProductCount()
-    }, []);
+    }, [activePage]);
 
     const routeProducts = () => {
         let path = `/ProductsPage`;
@@ -71,12 +72,12 @@ export function HomePage({getProductCount,productCount}) {
                     </Card>
                 </Layout.Section>
                 <Layout.Section>
-                <Button
-                    primary
-                    onClick={routeProducts}
-                >
-                    View products
-                </Button>
+                    <Button
+                        primary
+                        onClick={routeProducts}
+                    >
+                        View products
+                    </Button>
                 </Layout.Section>
             </Layout>
         </Page>

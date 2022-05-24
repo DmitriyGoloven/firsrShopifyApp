@@ -2,31 +2,21 @@ import {useCallback, useEffect, useState} from "react";
 import {Form, TextField, Button, FormLayout, Page, Banner} from "@shopify/polaris";
 import {Loading, Toast, useClientRouting, useRoutePropagation} from "@shopify/app-bridge-react";
 import {useLocation, useNavigate} from "react-router-dom";
-import {ButtonGroup, DisplayText} from "@shopify/polaris";
-import {gql, useMutation, useQuery} from "@apollo/client";
-
-const ADD_PRODUCT = gql`
-  mutation populateProduct($input: ProductInput!) {
-    productCreate(input: $input) {
-      product {
-        title
-        descriptionHtml
-        id
-      
-      }
-    }
-  }
-`;
+import {ButtonGroup} from "@shopify/polaris";
+import {gql, useMutation} from "@apollo/client";
+import {ADD_PRODUCT} from "../GqlRequests/GqlRequests";
 
 
-export function AddProductPage() {
+export function AddProductPage({setActivePage, activePage}) {
 
     let location = useLocation();
     let navigate = useNavigate();
     useRoutePropagation(location);
     useClientRouting({
-        replace:navigate});
+        replace: navigate
+    });
 
+    useEffect(() => setActivePage("Add Product"), [activePage])
 
     const [addProduct, {loading, error, data}] = useMutation(ADD_PRODUCT)
 
@@ -44,9 +34,6 @@ export function AddProductPage() {
         }))
     }, [title, description]);
 
-    // useEffect(() => {
-    //     console.log(data)
-    // }, [data])
 
     const handleTitleChange = useCallback((value) => setTitle(value), [title]);
     const handleDescriptionChange = useCallback((value) => setDescription(value), [description],);
