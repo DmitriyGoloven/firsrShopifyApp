@@ -10,42 +10,20 @@ import {useAppBridge, useClientRouting, useRoutePropagation} from "@shopify/app-
 import {useLocation,useNavigate} from "react-router-dom";
 import {useCallback, useEffect, useState} from "react";
 
-import {userLoggedInFetch} from "../App";
 
-export function HomePage() {
+export function HomePage({getProductCount,productCount}) {
 
     let location = useLocation();
     let navigate = useNavigate();
     useRoutePropagation(location);
     useClientRouting({
-        replace:navigate});
-
-    const [productCount, setProductCount] = useState(0);
-    const [productCount1, setProductCount1] = useState(0);
-    const [productCount2, setProductCount2] = useState(0);
-
-    const app = useAppBridge();
-    const fetch = userLoggedInFetch(app);
-
-    async function updateProductCount() {
-        const {count} = await fetch("/products/count").then((res) => res.json());
-        setProductCount(count);
-    }
-    async function updateProduct() {
-        const {count} = await fetch("/product").then((res) => res.json());
-        setProductCount1(count);
-    }
-    async function updateProductu() {
-        const {count} = await fetch("/productu").then((res) => res.json());
-        setProductCount2(count)
-    }
-
-
+        replace(path) {
+            navigate(path);
+        }
+    });
 
     useEffect(() => {
-        updateProductCount();
-        updateProduct()
-        updateProductu()
+        getProductCount()
     }, []);
 
     const routeProducts = () => {
@@ -74,7 +52,7 @@ export function HomePage() {
                             <Heading element="h4">
                                 PUBLISHED
                                 <DisplayText size="medium">
-                                    <TextStyle variation="strong">{productCount1}</TextStyle>
+                                    <TextStyle variation="strong">{productCount}</TextStyle>
                                 </DisplayText>
                             </Heading>
                         </TextContainer>
@@ -86,7 +64,7 @@ export function HomePage() {
                             <Heading element="h4">
                                 UNPUBLISHED
                                 <DisplayText size="medium">
-                                    <TextStyle variation="strong">{productCount2}</TextStyle>
+                                    <TextStyle variation="strong">{productCount}</TextStyle>
                                 </DisplayText>
                             </Heading>
                         </TextContainer>

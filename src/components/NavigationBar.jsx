@@ -39,6 +39,7 @@ const NavigationBar = () => {
             children.destination === path.path)
         navigationMenu.set({active: link})
         myTitleBar.set({
+            // title: path
             title: navigationMenu.activeOptions.destination.replace(
                 navigationMenu.activeOptions.destination[0], "", 1),
         });
