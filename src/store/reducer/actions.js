@@ -11,9 +11,27 @@ const createRequestAction = (type, payload) => {
 export const getProductCount = createRequestAction('GET_PRODUCT_COUNT', () => ({
     request: {
         method: 'get',
-        url: '/products/count',
+        url: '/rest',
+        headers: {urlPath: '/count.json'}
     }
 }));
+
+export const getPublishedProducts = createRequestAction('GET_PUBLISHED_PRODUCTS', () => ({
+    request: {
+        method: 'get',
+        url: '/rest',
+        headers: {urlPath: '/count.json?published_status=published'}
+    }
+}));
+
+export const getUnPublishedProducts = createRequestAction('GET_UNPUBLISHED_PRODUCTS', () => ({
+    request: {
+        method: 'get',
+        url: '/rest',
+        headers: {urlPath: '/count.json?published_status=unpublished'}
+    }
+}));
+
 
 export const setActivePage = createAction('SET_ACTIVE_PAGE', (payload) => {
     return payload

@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {useAppBridge} from "@shopify/app-bridge-react";
 import {AppLink, NavigationMenu, TitleBar, Redirect, Button} from "@shopify/app-bridge/actions";
 
@@ -40,7 +40,7 @@ const NavigationBar = ({activePage, setActivePage}) => {
         setActiveMenu()
     }, [activePage])
 
-    function setActiveMenu() {
+    const setActiveMenu = useCallback(() => {
         switch (activePage) {
             case "Home Page":
                 navigationMenu.set({active: HomePageLink})
@@ -55,7 +55,7 @@ const NavigationBar = ({activePage, setActivePage}) => {
                 navigationMenu.set({active: ProductsPageLink})
                 break
         }
-    }
+    }, [activePage])
 
     const myTitleBar = TitleBar.create(app, titleBarOptions);
 

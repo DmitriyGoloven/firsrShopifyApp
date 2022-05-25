@@ -11,7 +11,15 @@ import {useLocation, useNavigate} from "react-router-dom";
 import {useEffect} from "react";
 
 
-export function HomePage({getProductCount, productCount, setActivePage, activePage}) {
+export function HomePage({
+                             getProductCount,
+                             productCount,
+                             setActivePage,
+                             productsUnPublished,
+                             getUnPublishedProducts,
+                             productsPublished,
+                             getPublishedProducts
+                         }) {
 
     let location = useLocation();
     let navigate = useNavigate();
@@ -25,7 +33,9 @@ export function HomePage({getProductCount, productCount, setActivePage, activePa
     useEffect(() => {
         setActivePage("Home Page")
         getProductCount()
-    }, [activePage]);
+        getPublishedProducts()
+        getUnPublishedProducts()
+    }, [productCount]);
 
     const routeProducts = () => {
         let path = `/ProductsPage`;
@@ -53,7 +63,7 @@ export function HomePage({getProductCount, productCount, setActivePage, activePa
                             <Heading element="h4">
                                 PUBLISHED
                                 <DisplayText size="medium">
-                                    <TextStyle variation="strong">{productCount}</TextStyle>
+                                    <TextStyle variation="strong">{productsPublished}</TextStyle>
                                 </DisplayText>
                             </Heading>
                         </TextContainer>
@@ -65,7 +75,7 @@ export function HomePage({getProductCount, productCount, setActivePage, activePa
                             <Heading element="h4">
                                 UNPUBLISHED
                                 <DisplayText size="medium">
-                                    <TextStyle variation="strong">{productCount}</TextStyle>
+                                    <TextStyle variation="strong">{productsUnPublished}</TextStyle>
                                 </DisplayText>
                             </Heading>
                         </TextContainer>

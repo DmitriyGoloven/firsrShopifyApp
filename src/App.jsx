@@ -20,7 +20,6 @@ import {BrowserRouter, Route, Routes} from "react-router-dom";
 import EditProductPage from "./components/EditProductPage/index.jsx";
 import NavigationBar from "./components/NavigationBar/index.jsx";
 
-
 export default function App() {
 
     return (
@@ -51,7 +50,6 @@ export default function App() {
 
 function MyProvider({children}) {
     const app = useAppBridge();
-
 
     const client = new ApolloClient({
 
