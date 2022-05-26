@@ -16,6 +16,8 @@ export default function verifyRequest(app, { returnHeader = true } = {}) {
     );
 
     let shop = req.query.shop;
+    // console.log(session)
+
 
     if (session && shop && session.shop !== shop) {
       // The current request is for a different shop. Redirect gracefully.

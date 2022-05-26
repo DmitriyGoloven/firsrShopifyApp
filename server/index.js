@@ -9,12 +9,64 @@ import applyAuthMiddleware from "./middleware/auth.js";
 import verifyRequest from "./middleware/verify-request.js";
 import axios from "axios";
 import mongoose from 'mongoose';
+import {SessionModel} from "./MongoDB/sessionShema.js"
+import {Session} from "@shopify/shopify-api/dist/auth/session/index.js";
 
-mongoose.connect(`mongodb+srv://Dim:${process.env.PASDB}@cluster0.e0oewqf.mongodb.net/?retryWrites=true&w=majority`, function (err) {
+mongoose.connect(`mongodb+srv://Dim:${process.env.PASDB}@cluster0.e0oewqf.mongodb.net/ShopifyApp?retryWrites=true&w=majority`, function (err) {
 
     if (err) throw err;
     console.log('Successfully connected MongoDB');
 });
+
+
+const storeCallback = async (session) => {
+    console.log("storeCallback get session", session.id)
+    const result = await SessionModel.findOne({id:session.id});
+    if (result) {
+
+        await SessionModel.findOneAndUpdate(
+            {id: session.id},
+            {
+                shop: session.shop,
+                data: session,
+            },
+            {
+                upsert: true,
+                new: true,
+                setDefaultsOnInsert: true
+            }
+        );
+        console.log("storeCallback SessionModel=find and update to",session.id)
+    } else {
+        await SessionModel.create({
+            id: session.id,
+            shop: session.shop,
+            data: session,
+        });
+        console.log("storeCallback not find and create new ",session.id)
+    }
+
+    return true;
+}
+
+const loadCallback = async (id) => {
+    const reply = await  SessionModel.findOne({id});
+    if (reply) {
+        console.log("loadCallback SessionModel=find",id)
+        let session = reply.data;
+        //static cloneSession(session: Session, newId: string): Session;
+        return Session.cloneSession(session, session.id);
+    }
+    console.log("loadCallback SessionModel not find",id)
+    return undefined
+}
+
+const deleteCallback = async (id) => {
+    console.log("deleteCallback ", id)
+    await SessionModel.deleteOne({id});
+    return true;
+}
+
 
 const USE_ONLINE_TOKENS = true;
 const TOP_LEVEL_OAUTH_COOKIE = "shopify_top_level_oauth";
@@ -30,16 +82,21 @@ Shopify.Context.initialize({
     API_VERSION: ApiVersion.April22,
     IS_EMBEDDED_APP: true,
     // This should be replaced with your preferred storage strategy
-    SESSION_STORAGE: new Shopify.Session.MemorySessionStorage(),
+    SESSION_STORAGE: new Shopify.Session.CustomSessionStorage(
+        storeCallback,
+        loadCallback,
+        deleteCallback
+    ),
 });
 
 // Storing the currently active shops in memory will force them to re-login when your server restarts. You should
 // persist this object in your app.
 const ACTIVE_SHOPIFY_SHOPS = {};
+
 Shopify.Webhooks.Registry.addHandler("APP_UNINSTALLED", {
     path: "/webhooks",
     webhookHandler: async (topic, shop, body) => {
-        delete ACTIVE_SHOPIFY_SHOPS[shop];
+        await SessionModel.findOneAndUpdate({ shop }, { isActive: false });
     },
 });
 
@@ -122,7 +179,7 @@ export async function createServer(
 
     app.use("/*", (req, res, next) => {
         const {shop} = req.query;
-
+        // console.log(ACTIVE_SHOPIFY_SHOPS)
         // Detect whether we need to reinstall the app, any request from Shopify will
         // include a shop in the query parameters.
         if (app.get("active-shopify-shops")[shop] === undefined && shop) {

@@ -17,7 +17,7 @@ export default function applyAuthMiddleware(app) {
       "/auth/callback",
       app.get("use-online-tokens")
     );
-
+// console.log(req.query.shop)
     res.redirect(redirectUrl);
   });
 
@@ -71,6 +71,7 @@ export default function applyAuthMiddleware(app) {
 
       // Redirect to app with shop parameter upon auth
       res.redirect(`/?shop=${session.shop}&host=${host}`);
+      // res.redirect(`https:/${session.shop}admin/app/${process.env.SHOPIFY_API_KEY}`)
     } catch (e) {
       switch (true) {
         case e instanceof Shopify.Errors.InvalidOAuthError:
