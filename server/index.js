@@ -8,6 +8,13 @@ import "dotenv/config";
 import applyAuthMiddleware from "./middleware/auth.js";
 import verifyRequest from "./middleware/verify-request.js";
 import axios from "axios";
+import mongoose from 'mongoose';
+
+mongoose.connect(`mongodb+srv://Dim:${process.env.PASDB}@cluster0.e0oewqf.mongodb.net/?retryWrites=true&w=majority`, function (err) {
+
+    if (err) throw err;
+    console.log('Successfully connected MongoDB');
+});
 
 const USE_ONLINE_TOKENS = true;
 const TOP_LEVEL_OAUTH_COOKIE = "shopify_top_level_oauth";
@@ -42,6 +49,7 @@ export async function createServer(
     isProd = process.env.NODE_ENV === "production"
 ) {
     const app = express();
+    console.log("create server")
     app.set("top-level-oauth-cookie", TOP_LEVEL_OAUTH_COOKIE);
     app.set("active-shopify-shops", ACTIVE_SHOPIFY_SHOPS);
     app.set("use-online-tokens", USE_ONLINE_TOKENS);
