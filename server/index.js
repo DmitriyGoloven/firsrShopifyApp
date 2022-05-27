@@ -12,7 +12,8 @@ import mongoose from 'mongoose';
 import {SessionModel} from "./MongoDB/sessionShema.js"
 import {Session} from "@shopify/shopify-api/dist/auth/session/index.js";
 
-mongoose.connect(`mongodb+srv://Dim:${process.env.PASDB}@cluster0.e0oewqf.mongodb.net/ShopifyApp?retryWrites=true&w=majority`, function (err) {
+mongoose.connect(`mongodb+srv://Dim:${process.env.PASDB}@cluster0.e0oewqf.mongodb.net/ShopifyApp?retryWrites=true&w=majority`,
+    function (err) {
 
     if (err) throw err;
     console.log('Successfully connected MongoDB');
