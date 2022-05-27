@@ -16,7 +16,7 @@ export default function verifyRequest(app, { returnHeader = true } = {}) {
     );
 
     let shop = req.query.shop;
-    // console.log(session)
+    // console.log("verifyRequest",shop)
 
 
     if (session && shop && session.shop !== shop) {

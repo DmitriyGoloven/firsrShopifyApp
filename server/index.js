@@ -20,6 +20,7 @@ mongoose.connect(`mongodb+srv://Dim:${process.env.PASDB}@cluster0.e0oewqf.mongod
 
 
 const storeCallback = async (session) => {
+    console.log(ACTIVE_SHOPIFY_SHOPS)
     console.log("storeCallback get session", session.id)
     const result = await SessionModel.findOne({id:session.id});
     if (result) {
@@ -27,7 +28,9 @@ const storeCallback = async (session) => {
         await SessionModel.findOneAndUpdate(
             {id: session.id},
             {
+                id: session.id,
                 shop: session.shop,
+                scope: session.scope,
                 data: session,
             },
             {
@@ -41,6 +44,7 @@ const storeCallback = async (session) => {
         await SessionModel.create({
             id: session.id,
             shop: session.shop,
+            scope: session.scope,
             data: session,
         });
         console.log("storeCallback not find and create new ",session.id)
@@ -91,12 +95,12 @@ Shopify.Context.initialize({
 
 // Storing the currently active shops in memory will force them to re-login when your server restarts. You should
 // persist this object in your app.
-const ACTIVE_SHOPIFY_SHOPS = {};
+ const ACTIVE_SHOPIFY_SHOPS = {};
 
 Shopify.Webhooks.Registry.addHandler("APP_UNINSTALLED", {
     path: "/webhooks",
     webhookHandler: async (topic, shop, body) => {
-        await SessionModel.findOneAndUpdate({ shop }, { isActive: false });
+        await SessionModel.deleteOne({shop});
     },
 });
 
@@ -108,7 +112,7 @@ export async function createServer(
     const app = express();
     console.log("create server")
     app.set("top-level-oauth-cookie", TOP_LEVEL_OAUTH_COOKIE);
-    app.set("active-shopify-shops", ACTIVE_SHOPIFY_SHOPS);
+    // app.set("active-shopify-shops", ACTIVE_SHOPIFY_SHOPS);
     app.set("use-online-tokens", USE_ONLINE_TOKENS);
 
     app.use(cookieParser(Shopify.Context.API_SECRET_KEY));
@@ -152,7 +156,6 @@ export async function createServer(
         res.status(200).send(data);
     })
 
-
     app.post("/graphql", verifyRequest(app), async (req, res) => {
         try {
             const response = await Shopify.Utils.graphqlProxy(req, res);
@@ -177,16 +180,28 @@ export async function createServer(
         next();
     });
 
-    app.use("/*", (req, res, next) => {
+    app.use("/*",async (req, res, next) => {
         const {shop} = req.query;
-        // console.log(ACTIVE_SHOPIFY_SHOPS)
         // Detect whether we need to reinstall the app, any request from Shopify will
         // include a shop in the query parameters.
-        if (app.get("active-shopify-shops")[shop] === undefined && shop) {
+
+        // if (app.get("active-shopify-shops")[shop] === undefined && shop) {
+        //     res.redirect(`/auth?${new URLSearchParams(req.query).toString()}`);
+        // } else {
+        //     next();
+        // }
+
+
+        // console.log("active shop =",shop , "shopMONGO = ",await SessionModel.findOne({shop}))
+        if (await SessionModel.findOne({shop}) === null && shop) {
+            (console.log("//////////////////redirect true"))
             res.redirect(`/auth?${new URLSearchParams(req.query).toString()}`);
         } else {
             next();
         }
+
+
+
     });
 
     /**

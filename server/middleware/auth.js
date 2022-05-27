@@ -3,6 +3,7 @@ import { Shopify } from "@shopify/shopify-api";
 import topLevelAuthRedirect from "../helpers/top-level-auth-redirect.js";
 
 export default function applyAuthMiddleware(app) {
+
   app.get("/auth", async (req, res) => {
     if (!req.signedCookies[app.get("top-level-oauth-cookie")]) {
       return res.redirect(
@@ -17,7 +18,7 @@ export default function applyAuthMiddleware(app) {
       "/auth/callback",
       app.get("use-online-tokens")
     );
-// console.log(req.query.shop)
+
     res.redirect(redirectUrl);
   });
 
@@ -48,13 +49,13 @@ export default function applyAuthMiddleware(app) {
         req.query
       );
 
-      const host = req.query.host;
-      app.set(
-        "active-shopify-shops",
-        Object.assign(app.get("active-shopify-shops"), {
-          [session.shop]: session.scope,
-        })
-      );
+      // const host = req.query.host;
+      // app.set(
+      //   "active-shopify-shops",
+      //   Object.assign(app.get("active-shopify-shops"), {
+      //     [session.shop]: session.scope,
+      //   })
+      // );
 
       const response = await Shopify.Webhooks.Registry.register({
         shop: session.shop,
@@ -70,8 +71,8 @@ export default function applyAuthMiddleware(app) {
       }
 
       // Redirect to app with shop parameter upon auth
-      res.redirect(`/?shop=${session.shop}&host=${host}`);
-      // res.redirect(`https:/${session.shop}admin/app/${process.env.SHOPIFY_API_KEY}`)
+      // res.redirect(`/?shop=${session.shop}&host=${host}`);
+       res.redirect(`https:/${session.shop}/admin/app/${process.env.SHOPIFY_API_KEY}`)
     } catch (e) {
       switch (true) {
         case e instanceof Shopify.Errors.InvalidOAuthError:

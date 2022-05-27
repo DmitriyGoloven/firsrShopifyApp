@@ -5,6 +5,7 @@ export default function topLevelAuthRedirect({
   query,
 }) {
   const serializedQuery = new URLSearchParams(query).toString();
+  console.log(serializedQuery)
   return `<!DOCTYPE html>
 <html>
   <head>
